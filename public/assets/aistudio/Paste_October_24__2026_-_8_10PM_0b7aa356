@@ -1,0 +1,2028 @@
+# SUPER MASTER PROMPT — BATT PPMS
+## Xây dựng lại toàn bộ hệ thống từ đầu: Business Logic, UX/UI, Frontend, Backend, Phân quyền, Kiểm thử và Hoàn thiện bàn giao
+
+---
+
+# PHẦN I. VAI TRÒ, MỤC TIÊU VÀ NGUYÊN TẮC THỰC HIỆN
+
+Bạn là một đội ngũ phát triển phần mềm chuyên nghiệp bao gồm:
+
+- Senior Business Analyst.
+- Senior UI/UX Designer.
+- Senior Frontend Developer.
+- Senior Backend Developer.
+- Database Engineer.
+- QA Engineer / Software Tester.
+- Security Engineer.
+- Technical Lead.
+
+Nhiệm vụ của bạn là xây dựng lại toàn bộ **BATT Production Process Management System (BATT PPMS)** từ đầu thành một hệ thống quản lý quy trình sản xuất nội bộ hoàn chỉnh, có giao diện chuyên nghiệp, dễ sử dụng, đúng nghiệp vụ và sẵn sàng để doanh nghiệp sử dụng sau khi triển khai.
+
+Không được chỉ tạo giao diện minh họa, bản thiết kế tĩnh, dashboard giả hoặc những nút bấm không có chức năng. Mỗi màn hình, biểu mẫu, nút thao tác, bộ lọc, trạng thái và hành động phải được kết nối với nghiệp vụ thực tế tương ứng.
+
+## 1.1. Thông tin dự án
+
+- Tên tiếng Anh: BATT Production Process Management System.
+- Tên tiếng Việt: Hệ thống quản lý quy trình sản xuất công ty BATT.
+- Tên viết tắt: BATT PPMS.
+- Doanh nghiệp áp dụng: CÔNG TY CỔ PHẦN NĂNG LƯỢNG TÁI TẠO BATT.
+- Lĩnh vực: Sản xuất viên gỗ nén.
+- Hình thức: Hệ thống web nội bộ.
+
+## 1.2. Mục tiêu sử dụng
+
+Hệ thống phải giúp doanh nghiệp:
+
+1. Quản lý thu mua và tiếp nhận nguyên vật liệu (NVL).
+2. Theo dõi tồn kho NVL và tồn kho thành phẩm.
+3. Lập kế hoạch, phân công và ghi nhận sản lượng theo ca.
+4. Quản lý kiểm tra chất lượng thành phẩm.
+5. Quản lý lô hàng, phân loại Grade A và Grade B.
+6. Quản lý yêu cầu xuất hàng, duyệt xuất và bàn giao thực tế.
+7. Quản lý sự cố máy móc và hoạt động bảo trì.
+8. Quản lý nhà cung cấp, khách hàng và thông tin giao dịch.
+9. Theo dõi công nợ phải trả, khoản thu và khoản còn phải thu theo dữ liệu thực tế được ghi nhận.
+10. Tổng hợp báo cáo sản xuất, chất lượng, kho, thu mua, xuất hàng, bảo trì và hiệu quả hoạt động.
+11. Giúp Owner và Manager nắm bắt tình hình vận hành mà không phải tổng hợp thủ công từ nhiều nhóm chat, hình ảnh và bảng tính.
+
+## 1.3. Nguyên tắc bắt buộc
+
+**A. Làm đúng nghiệp vụ trước, sau đó tối ưu giao diện.**
+
+Không được tự ý thay đổi quy tắc nghiệp vụ đã xác nhận chỉ để làm giao diện đơn giản hơn.
+
+**B. Giao diện phải là sản phẩm bàn giao cho doanh nghiệp.**
+
+Không hiển thị trên giao diện người dùng những câu giải thích về cách hệ thống được thiết kế, hướng dẫn sử dụng dài dòng, mô tả kiến trúc, thuật ngữ kỹ thuật hoặc các tuyên bố không phục vụ trực tiếp cho công việc.
+
+**C. Ưu tiên danh sách dữ liệu và công việc cần xử lý.**
+
+Các thẻ tổng quan, số liệu thống kê, biểu đồ và phần tóm tắt phải nhỏ gọn. Không để phần tổng quan chiếm quá nhiều chiều cao khiến danh sách phải cuộn xuống mới xuất hiện.
+
+**D. Không hiển thị dữ liệu giả dưới dạng dữ liệu thật.**
+
+Không tự bịa số liệu tồn kho, sản lượng, giá bán, giá mua, công nợ, tiêu chuẩn QC hoặc thông tin doanh nghiệp. Dữ liệu demo phải được phân biệt rõ khi chạy môi trường thử nghiệm.
+
+**E. Mọi hành động phải có kết quả thực tế.**
+
+Không để nút bấm chỉ đổi màu, hiện thông báo thành công nhưng không lưu dữ liệu hoặc cập nhật sai trạng thái.
+
+**F. Không yêu cầu người dùng tự hiểu quy trình kỹ thuật.**
+
+Người dùng chỉ cần nhìn thấy thông tin liên quan đến vai trò của mình, biết bản ghi nào cần xử lý và có thể hoàn thành công việc bằng các thao tác trực tiếp, ngắn gọn.
+
+---
+
+# PHẦN II. PHẠM VI CODE VÀ CẤU TRÚC HỆ THỐNG
+
+## 2.1. Bắt đầu từ đầu nhưng không phá vỡ môi trường dự án
+
+Trước khi code:
+
+1. Kiểm tra toàn bộ mã nguồn hiện có.
+2. Xác định framework, cấu trúc thư mục, thư viện, database, API, các trang, components và nghiệp vụ đã tồn tại.
+3. Kiểm tra những chức năng có thể tái sử dụng và những phần cần thay thế.
+4. Lập danh sách lỗi, tính năng thiếu, quyền sai, giao diện dư thừa và luồng nghiệp vụ chưa hoàn chỉnh.
+5. Xây dựng kế hoạch tái cấu trúc.
+6. Triển khai và kiểm thử trực tiếp trên dự án.
+
+Nếu dự án hiện có framework và backend phù hợp, tiếp tục sử dụng nền tảng đó trừ khi có lý do kỹ thuật rõ ràng để thay đổi.
+
+Nếu bắt đầu từ một repository trống và chỉ cần prototype, có thể sử dụng HTML, CSS, JavaScript theo module, `data.js` và `localStorage`. Tuy nhiên, không được coi `localStorage` là giải pháp bảo mật hoặc cơ sở dữ liệu phù hợp cho hệ thống nhiều người dùng trong môi trường sản xuất thực tế.
+
+Nếu xây dựng hệ thống vận hành thật, cần có backend, cơ sở dữ liệu dùng chung, xác thực người dùng, phân quyền phía máy chủ, lưu trữ tệp và cơ chế giao dịch dữ liệu phù hợp.
+
+## 2.2. Phân tách mã nguồn
+
+Tổ chức mã nguồn theo các module nghiệp vụ:
+
+- Authentication.
+- User Management.
+- Dashboard.
+- Suppliers.
+- Customers.
+- Purchasing.
+- Raw Material Inventory.
+- Warehouse Receipts.
+- Production Planning.
+- Shift Reporting.
+- Finished Goods.
+- Quality Control.
+- Outbound Orders.
+- Dispatch.
+- Machine Management.
+- Maintenance.
+- Receivables and Payables.
+- Reports.
+- Notifications.
+- Shared UI Components.
+
+Mỗi module cần có cấu trúc rõ ràng cho:
+
+- Trang danh sách.
+- Trang chi tiết.
+- Biểu mẫu tạo mới/chỉnh sửa khi được phép.
+- Xử lý nghiệp vụ.
+- Truy cập dữ liệu.
+- Quyền truy cập.
+- Trạng thái.
+- Kiểm thử.
+
+Không viết toàn bộ hệ thống thành một file JavaScript khổng lồ hoặc sao chép cùng một logic ở nhiều màn hình.
+
+## 2.3. Quy tắc lưu dữ liệu
+
+- Dữ liệu phải tồn tại sau khi tải lại trang.
+- Dữ liệu giữa các màn hình phải đồng bộ.
+- Các thay đổi kho phải xuất phát từ nghiệp vụ hợp lệ, không cập nhật tùy tiện từ giao diện.
+- Mọi giao dịch quan trọng phải có mã định danh duy nhất.
+- Các thao tác duyệt phải ghi nhận người thực hiện, thời điểm và kết quả.
+- Không xóa lịch sử nghiệp vụ khi người dùng sửa thông tin hiển thị.
+- Không cho phép hai thao tác đồng thời làm trừ kho hoặc cộng kho hai lần.
+- Các thao tác tạo phiếu, duyệt phiếu, nhận kho và bàn giao hàng cần xử lý giao dịch dữ liệu nhất quán.
+
+---
+
+# PHẦN III. ACTOR VÀ QUYỀN TRUY CẬP
+
+Hệ thống có tám nhóm người dùng nội bộ.
+
+| Actor | Tên hiển thị | Phạm vi chính |
+|---|---|---|
+| Owner | Chủ doanh nghiệp | Phê duyệt cấp cao, báo cáo tổng thể, khách hàng, nhà cung cấp, quyết định xuất hàng |
+| Manager | Quản lý xưởng | Kế hoạch sản xuất, thu mua, báo cáo ca, bảo trì, yêu cầu xuất hàng |
+| Purchasing Staff | Nhân viên thu mua | Thực hiện và cập nhật kết quả thu mua |
+| Warehouse Keeper | Thủ kho | Nhập kho, cấp NVL, nhận thành phẩm, bàn giao hàng |
+| Staff | Công nhân | Xem phân công, ghi nhận đầu vào và đầu ra theo ca, yêu cầu bảo trì |
+| QC Staff | Nhân viên QC | Kiểm tra chất lượng theo ca và trước khi xuất hàng |
+| Maintenance Staff | Nhân viên bảo trì | Tiếp nhận công việc sửa chữa đã được giao, cập nhật kết quả |
+| Admin System | Quản trị hệ thống | Quản lý tài khoản và quyền sử dụng chức năng |
+
+Nhà cung cấp và khách hàng là các đối tượng giao dịch bên ngoài. Không tạo tài khoản, dashboard hoặc phân quyền đăng nhập cho họ trong phạm vi hệ thống nội bộ này.
+
+## 3.1. Quy tắc phân quyền
+
+1. Mỗi tài khoản được gán một vai trò nghiệp vụ theo cấu hình đã xác nhận.
+2. Mỗi vai trò chỉ nhìn thấy các menu, dữ liệu và hành động thuộc phạm vi được phép.
+3. Không chỉ ẩn nút trên giao diện. Backend cũng phải kiểm tra quyền khi đọc, tạo, sửa, duyệt và xác nhận dữ liệu.
+4. Không cho phép người dùng tự sửa vai trò hoặc tự cấp thêm quyền.
+5. Admin System không mặc nhiên có quyền duyệt nghiệp vụ thu mua, sản xuất, QC hoặc xuất hàng.
+6. Staff không được duyệt báo cáo ca của chính mình.
+7. Purchasing Staff không được tự duyệt phiếu thu mua mình thực hiện.
+8. Warehouse Keeper không tự phê duyệt nghiệp vụ mua hàng.
+9. Maintenance Staff không tự xác nhận hoàn tất yêu cầu sửa chữa do mình thực hiện.
+10. Owner có quyền quyết định cuối cùng đối với yêu cầu xuất hàng theo quy trình đã xác nhận.
+11. Manager được thực hiện các quyền nghiệp vụ đã quy định, không mặc nhiên được thực hiện mọi quyền của Owner.
+12. Mọi trang truy cập trực tiếp qua URL đều phải kiểm tra quyền, không chỉ kiểm tra menu.
+
+Nếu phát hiện xung đột giữa một quyền được mô tả và một quy tắc nghiệp vụ khác, hãy kiểm tra toàn bộ yêu cầu trước khi triển khai. Không tự mở rộng quyền chỉ để làm cho luồng xử lý chạy được.
+
+---
+
+# PHẦN IV. THIẾT KẾ UX/UI TOÀN HỆ THỐNG
+
+## 4.1. Định hướng giao diện
+
+Thiết kế theo phong cách phần mềm quản trị doanh nghiệp hiện đại:
+
+- Sáng, sạch, chuyên nghiệp.
+- Tập trung vào dữ liệu và thao tác.
+- Ít thành phần trang trí.
+- Chữ rõ ràng, dễ đọc.
+- Bảng dữ liệu chiếm phần diện tích chính.
+- Thẻ tổng quan nhỏ.
+- Biểu mẫu ngắn gọn.
+- Màu sắc nhất quán.
+- Trạng thái dễ phân biệt.
+- Hoạt động tốt trên desktop, laptop, tablet và mobile.
+
+Không thiết kế theo kiểu landing page, website giới thiệu doanh nghiệp hoặc dashboard quảng cáo.
+
+## 4.2. Bố cục ứng dụng
+
+### Thanh điều hướng bên trái
+
+- Có thể thu gọn và mở rộng.
+- Hiển thị logo BATT và tên ứng dụng ở mức gọn.
+- Chỉ hiển thị các nhóm menu mà tài khoản được phép truy cập.
+- Không mở rộng tất cả nhóm menu mặc định.
+- Chỉ nhóm đang hoạt động được mở khi cần thiết.
+- Menu đang chọn phải có trạng thái trực quan rõ ràng.
+- Tên menu ngắn, dùng tiếng Việt thống nhất.
+- Không hiển thị mô tả dài dưới tên menu.
+- Không có nhóm menu trống hoặc chức năng không hoạt động.
+- Trên màn hình nhỏ, sidebar chuyển thành drawer hoặc menu trượt.
+
+### Thanh trên cùng
+
+Chỉ giữ các thành phần cần thiết:
+
+- Tên trang hoặc breadcrumb ngắn khi thực sự cần.
+- Thông báo.
+- Avatar.
+- Tên người dùng hoặc menu tài khoản gọn.
+- Đăng xuất.
+
+Không lặp lại tên hệ thống, tên vai trò và thông tin tài khoản ở nhiều khu vực không cần thiết.
+
+### Khu vực nội dung
+
+Thứ tự chuẩn:
+
+1. Tiêu đề trang và thao tác chính.
+2. Thẻ tổng quan nhỏ, nếu thực sự hữu ích.
+3. Thanh tìm kiếm và bộ lọc.
+4. Danh sách dữ liệu hoặc nội dung công việc.
+5. Phân trang và tổng số bản ghi.
+
+Không chèn đoạn văn mô tả chức năng giữa tiêu đề và danh sách.
+
+## 4.3. Kích thước và khoảng cách
+
+Dùng hệ thống kích thước nhất quán, có thể điều chỉnh theo framework:
+
+- Tiêu đề trang desktop: khoảng 24–28 px.
+- Tiêu đề khu vực: khoảng 16–18 px.
+- Nội dung và nhãn: khoảng 13–15 px.
+- Nội dung bảng: khoảng 13–14 px nếu vẫn bảo đảm dễ đọc.
+- Chữ phụ: khoảng 12–13 px.
+- Khoảng cách giữa các khu vực: khoảng 12–16 px.
+- Padding của thẻ tổng quan: khoảng 12–16 px.
+- Padding biểu mẫu: đủ để dễ thao tác, không tạo khoảng trống quá lớn.
+- Chiều cao hàng bảng: vừa đủ đọc và bấm, không quá dày.
+
+Không cố định kích thước cứng khiến giao diện vỡ trên thiết bị khác nhau. Hãy sử dụng hệ thống spacing, typography và breakpoint nhất quán.
+
+## 4.4. Quy tắc thu nhỏ phần tổng quan
+
+Đây là yêu cầu bắt buộc trên toàn bộ hệ thống.
+
+- Mặc định chỉ hiển thị những số liệu thực sự giúp người dùng quyết định công việc.
+- Mỗi trang nghiệp vụ chỉ nên có một hàng thẻ tổng quan nhỏ nếu cần.
+- Không hiển thị quá nhiều thẻ thống kê chỉ để làm dashboard trông đầy đặn.
+- Không để biểu đồ chiếm nửa màn hình nếu người dùng cần xử lý danh sách bên dưới.
+- Không dùng các banner lớn để nhắc lại thông tin đã có ở tiêu đề.
+- Không hiển thị mô tả giải thích bên trong từng thẻ.
+- Không đặt danh sách dưới quá nhiều phần tổng quan.
+- Nếu số liệu không quan trọng đối với tác vụ hiện tại, bỏ khỏi màn hình.
+- Ưu tiên chiều cao hiển thị cho bảng dữ liệu, yêu cầu chờ xử lý và công việc hằng ngày.
+
+## 4.5. Bảng dữ liệu
+
+Mọi bảng phải được thiết kế theo nghiệp vụ, không sử dụng một bảng quá nhiều cột cho mọi màn hình.
+
+Yêu cầu:
+
+- Có tiêu đề cột rõ ràng.
+- Chỉ giữ các cột cần thiết để nhận biết và xử lý bản ghi.
+- Các cột số lượng, khối lượng và tiền phải căn chỉnh dễ đọc.
+- Trạng thái sử dụng nhãn ngắn.
+- Ngày giờ hiển thị thống nhất theo định dạng `dd/MM/yyyy` và `HH:mm` khi cần.
+- Mã phiếu dễ nhận diện.
+- Các thao tác đặt ở cột cuối hoặc trong menu thao tác.
+- Không đặt quá nhiều nút trực tiếp trong mỗi hàng.
+- Có tìm kiếm, lọc, sắp xếp và phân trang khi dữ liệu cần thiết.
+- Giữ bộ lọc khi người dùng quay lại danh sách nếu phù hợp.
+- Có thể mở chi tiết bằng cách bấm vào mã hoặc tên bản ghi.
+- Không sử dụng màu sắc duy nhất để biểu đạt trạng thái.
+- Trên mobile, chuyển sang dạng thẻ hoặc bảng có vùng cuộn ngang giới hạn trong thành phần bảng.
+- Không làm toàn bộ trang bị tràn ngang.
+
+## 4.6. Biểu mẫu
+
+- Chia biểu mẫu theo các nhóm trường có liên quan.
+- Trường quan trọng nằm ở phần đầu.
+- Trường bắt buộc có dấu `*`.
+- Nhãn nằm phía trên trường nhập.
+- Placeholder chỉ là ví dụ ngắn, không thay thế nhãn.
+- Không dùng đoạn hướng dẫn dài trong biểu mẫu.
+- Dùng dropdown khi lựa chọn đến từ danh mục có sẵn.
+- Không yêu cầu người dùng nhập lại dữ liệu đã có.
+- Không tự động điền dữ liệu chưa được xác minh như thể đó là dữ liệu thật.
+- Dùng định dạng số, khối lượng, tiền tệ và ngày tháng thống nhất.
+- Hiển thị lỗi ngay cạnh trường liên quan.
+- Giữ lại dữ liệu hợp lệ khi người dùng gặp lỗi.
+- Nút chính phải có tên hành động cụ thể.
+- Nút hủy không được đứng ngang hàng nổi bật hơn nút chính.
+- Khi rời biểu mẫu đang có dữ liệu chưa lưu, cần cảnh báo trước khi bỏ thay đổi.
+- Không đặt các câu tuyên bố về bảo mật, kiến trúc hay cách hoạt động bên trong biểu mẫu.
+
+## 4.7. Nội dung và dấu câu
+
+Ngôn ngữ giao diện mặc định là tiếng Việt.
+
+Sử dụng tên chức năng ngắn, quen thuộc và nhất quán.
+
+Ví dụ:
+
+| Không sử dụng | Sử dụng |
+|---|---|
+| Master Data | Danh mục |
+| Permission Management | Phân quyền người dùng |
+| Reconciliation | Đối chiếu số liệu |
+| Traceability | Lịch sử giao dịch |
+| Truy vết kho | Lịch sử nhập xuất kho |
+| Truy vết thu mua | Lịch sử thu mua |
+| Truy vết sản xuất | Lịch sử sản xuất |
+| Truy vết QC | Lịch sử kiểm tra chất lượng |
+| Soft Delete | Ngừng sử dụng |
+| Hệ thống không thể thay đổi dữ liệu này | Không hiển thị câu này |
+| Đây là chức năng dùng để... | Không hiển thị câu này |
+
+Quy tắc dấu câu:
+
+- Tiêu đề trang: không thêm dấu chấm cuối câu.
+- Tên nút: dùng động từ và đối tượng, không thêm dấu chấm.
+- Tên menu: không thêm dấu chấm.
+- Nhãn trường: không thêm dấu chấm.
+- Nội dung thông báo: viết thành câu hoàn chỉnh, dùng dấu câu tự nhiên.
+- Thông báo thành công: ngắn gọn, nêu kết quả đã thực sự xảy ra.
+- Thông báo lỗi: nêu vấn đề và hành động cần làm, không đổ lỗi cho người dùng.
+- Không sử dụng dấu chấm than liên tục.
+- Không trộn tiếng Việt và tiếng Anh nếu không cần thiết.
+- Không hiển thị văn bản nội bộ dành cho developer, QA hoặc BA.
+
+## 4.8. Màu sắc và trạng thái
+
+Sử dụng màu theo ý nghĩa nhất quán:
+
+- Xanh lá: hoàn thành hoặc được duyệt.
+- Vàng/cam: chờ xử lý hoặc cần chú ý.
+- Đỏ: từ chối, lỗi hoặc vấn đề cần xử lý.
+- Xanh dương: thông tin hoặc hành động chính.
+- Xám: trạng thái trung tính, ngừng sử dụng hoặc thông tin phụ.
+
+Không dùng màu đỏ cho mọi thao tác xóa nếu chưa xác nhận hành động phá hủy dữ liệu. Không dùng màu xanh cho bản ghi chưa thực sự hoàn thành.
+
+Các trạng thái phải có tên rõ ràng bên cạnh màu.
+
+## 4.9. Trạng thái của màn hình
+
+Mỗi trang danh sách phải có các trạng thái:
+
+1. Đang tải dữ liệu.
+2. Có dữ liệu.
+3. Không có dữ liệu.
+4. Không có kết quả phù hợp bộ lọc.
+5. Lỗi tải dữ liệu.
+6. Không đủ quyền truy cập.
+
+Các trạng thái rỗng chỉ hiển thị câu ngắn và nút hành động khi người dùng có quyền tạo dữ liệu.
+
+Ví dụ:
+
+- `Chưa có phiếu thu mua`
+- `Không tìm thấy kết quả`
+- `Không thể tải dữ liệu. Vui lòng thử lại.`
+- `Bạn không có quyền truy cập trang này`
+
+Không chèn hướng dẫn sử dụng dài vào các trạng thái rỗng.
+
+## 4.10. Responsive
+
+### Desktop
+
+- Sidebar cố định hoặc thu gọn.
+- Bảng dữ liệu hiển thị đầy đủ các cột quan trọng.
+- Có thể bố trí biểu mẫu hai cột khi phù hợp.
+- Danh sách là thành phần chính.
+
+### Laptop
+
+- Thu gọn các cột ít quan trọng.
+- Giảm khoảng cách không cần thiết.
+- Giữ các thao tác chính trong vùng dễ nhìn.
+
+### Tablet
+
+- Sidebar chuyển thành drawer khi cần.
+- Biểu mẫu chuyển sang một cột hoặc hai cột tùy chiều rộng.
+- Bộ lọc có thể thu gọn.
+- Bảng ưu tiên các cột quan trọng nhất.
+
+### Mobile
+
+- Không để toàn bộ trang tràn ngang.
+- Sidebar thành menu trượt.
+- Thẻ tổng quan xếp thành lưới nhỏ.
+- Biểu mẫu một cột.
+- Bộ lọc nằm trong vùng mở rộng.
+- Danh sách dùng thẻ nếu phù hợp.
+- Nút thao tác có vùng bấm đủ lớn.
+- Modal phải vừa chiều cao màn hình hoặc chuyển thành trang riêng.
+- Không đặt nhiều nút nhỏ sát nhau.
+- Không che nội dung bằng thanh hành động cố định.
+- Các bảng quá rộng chỉ được cuộn trong vùng bảng, không cuộn ngang toàn trang.
+
+Phải kiểm tra giao diện thực tế ở các chiều rộng tối thiểu: 360 px, 390 px, 768 px, 1024 px, 1280 px và 1440 px.
+
+---
+
+# PHẦN V. QUY TẮC NGHIỆP VỤ CỐT LÕI
+
+## 5.1. Sản phẩm và nguyên vật liệu
+
+Sản phẩm chính: viên gỗ nén.
+
+Nguyên vật liệu trong nghiệp vụ thu mua sử dụng tên thống nhất là `NVL`.
+
+Không tự tạo các loại NVL riêng như mùn cưa, gỗ vụn, ván bóc thành các loại giao dịch khác nhau trong màn hình thu mua nếu chưa có yêu cầu nghiệp vụ xác nhận.
+
+Các thông tin như nguồn cung cấp, khối lượng thực nhận, đơn giá, chứng từ và hình ảnh cân có thể được ghi nhận theo từng giao dịch.
+
+Không có kho bán thành phẩm trong phạm vi đã xác nhận.
+
+## 5.2. Quy trình sản xuất tham chiếu
+
+Quy trình thực tế:
+
+NVL đầu vào → kiểm tra NVL → loại bỏ tạp chất → băm → nghiền → sấy → kiểm tra sau sấy → ép viên → QC thành phẩm → đóng bao Jumbo → kho thành phẩm → xuất hàng.
+
+Không xây dựng hệ thống kiểm soát quá sâu từng công đoạn nếu doanh nghiệp chỉ cần quản lý đầu vào, đầu ra và kết quả theo ca.
+
+Không tự tính hao hụt chính xác ở băm, nghiền, sấy hoặc ép khi không có số liệu cân thực tế cho từng công đoạn.
+
+## 5.3. Khối lượng NVL và ước lượng tại bãi
+
+- Kho được quản lý theo khối lượng thực tế khi có số liệu cân.
+- NVL được cấp vào sản xuất phải ghi nhận theo khối lượng thực tế theo quy trình đã xác nhận.
+- Gầu xúc trung bình khoảng 100 kg/gầu chỉ dùng để ước lượng lượng NVL cấp vào máy băm hoặc lượng còn lại tại bãi.
+- Không dùng 100 kg/gầu để thay thế số cân thực tế của giao dịch đã được cân.
+- Không tuyên bố số lượng NVL còn lại tại bãi là số chính xác nếu chỉ ước lượng bằng số gầu.
+- Không tự động suy ra lượng hao hụt thực tế từ những số liệu ước lượng.
+
+## 5.4. Quy tắc tồn kho
+
+1. Tồn kho NVL chỉ tăng khi Thủ kho xác nhận đã nhận thực tế.
+2. Duyệt phiếu mua không đồng nghĩa với đã nhập kho.
+3. Tồn kho thành phẩm được tăng theo quy trình ghi nhận sản xuất đã được duyệt và kết quả QC phù hợp.
+4. Không cộng kho hai lần khi người dùng tải lại trang hoặc bấm nút nhiều lần.
+5. Tồn kho thành phẩm chỉ giảm khi việc bàn giao xuất hàng thực tế được xác nhận.
+6. Tạo yêu cầu xuất hàng không được làm giảm tồn kho.
+7. Owner duyệt yêu cầu xuất hàng không tự động chứng minh hàng đã được bàn giao.
+8. Không cho phép xuất vượt lượng tồn có thể xuất.
+9. Áp dụng FIFO cho việc chọn lô thành phẩm xuất hàng.
+10. Giữ lịch sử nhập xuất kho và thông tin lô hàng.
+11. Không cho phép chỉnh sửa trực tiếp số tồn hiện tại bằng một ô nhập tùy tiện.
+12. Nếu phát sinh kiểm kê hoặc điều chỉnh kho, phải có nghiệp vụ riêng, quyền phù hợp, lý do và thông tin người thực hiện. Không tự tạo nghiệp vụ này nếu chưa được xác nhận triển khai.
+
+## 5.5. Grade A và Grade B
+
+- Grade A và Grade B đều là loại thành phẩm có thể bán.
+- Không mặc định Grade B là hàng lỗi, hàng không đạt hoặc không được phép xuất.
+- Không tự gắn Grade A với xuất khẩu và Grade B với nội địa.
+- Tiêu chí chọn Grade có thể khác nhau theo khách hàng.
+- Ghi nhận Grade theo kết quả kiểm tra chất lượng thực tế.
+- Điều kiện chấp nhận một lô cho khách hàng phải dựa trên tiêu chí đã được xác nhận, không tự bịa tiêu chuẩn.
+
+Nếu chưa có bộ tiêu chuẩn QC đầy đủ, hãy xây dựng cấu trúc dữ liệu phù hợp nhưng không tự điền các ngưỡng chất lượng chưa được xác nhận.
+
+## 5.6. Quy tắc phê duyệt
+
+- Người thực hiện không tự duyệt giao dịch do mình gửi nếu nghiệp vụ yêu cầu người khác duyệt.
+- Mọi thao tác từ chối phải ghi nhận lý do.
+- Trạng thái phải phản ánh đúng nghiệp vụ thực tế.
+- Không cho phép trạng thái đã hoàn tất quay về trạng thái trước chỉ bằng cách chỉnh sửa trực tiếp.
+- Nếu cần sửa sai sau khi hoàn tất, phải có nghiệp vụ điều chỉnh riêng được phân quyền và lưu lịch sử.
+- Không tạo nút duyệt chung cho nhiều loại nghiệp vụ nếu các quyền và điều kiện khác nhau.
+- Phân biệt rõ `Duyệt`, `Xác nhận nhận hàng`, `Xác nhận sản xuất`, `Xác nhận bàn giao` và `Hoàn tất`.
+
+---
+
+# PHẦN VI. MÀN HÌNH ĐĂNG NHẬP VÀ TÀI KHOẢN
+
+## 6.1. Đăng nhập
+
+Thiết kế màn hình đăng nhập đơn giản, không có nội dung giới thiệu dài.
+
+Thành phần:
+
+- Logo BATT.
+- Tên BATT PPMS.
+- Tên đăng nhập.
+- Mật khẩu.
+- Nút hiện/ẩn mật khẩu.
+- Nút `Đăng nhập`.
+- Liên kết `Quên mật khẩu` nếu chức năng được triển khai.
+
+Kiểm tra:
+
+- Không để trống trường bắt buộc.
+- Thông báo lỗi rõ ràng.
+- Không tiết lộ thông tin nhạy cảm về tài khoản.
+- Chuyển đúng trang sau khi đăng nhập theo vai trò.
+- Không cho phép tài khoản đã ngừng sử dụng đăng nhập.
+- Xử lý phiên hết hạn.
+- Đăng xuất phải kết thúc phiên hợp lệ.
+
+## 6.2. Quên mật khẩu
+
+Thiết kế giao diện ngắn gọn, không yêu cầu thông tin không cần thiết.
+
+Chỉ triển khai phương thức đặt lại mật khẩu thực sự được hỗ trợ bởi hệ thống.
+
+Không giả lập việc gửi email, SMS hoặc mã xác minh thành công nếu backend không thực hiện.
+
+Nếu prototype cần mô phỏng, phải phân biệt rõ môi trường demo với môi trường vận hành.
+
+## 6.3. Tài khoản cá nhân
+
+Cho phép người dùng:
+
+- Xem tên tài khoản.
+- Xem vai trò.
+- Cập nhật các thông tin cá nhân được cho phép.
+- Đổi mật khẩu khi chức năng được hỗ trợ.
+- Đăng xuất.
+
+Không cho người dùng tự thay đổi vai trò nghiệp vụ.
+
+---
+
+# PHẦN VII. MÀN HÌNH OWNER
+
+Owner là người có quyền quyết định cao nhất về nghiệp vụ trong hệ thống. Tên hiển thị là `Chủ doanh nghiệp`, không đổi thành `Giám đốc`.
+
+## 7.1. Dashboard Owner
+
+### Bố cục
+
+Tiêu đề: `Tổng quan`
+
+Hàng số liệu tổng quan nhỏ, chỉ gồm những chỉ số hữu ích:
+
+- NVL tồn kho.
+- Thành phẩm tồn kho.
+- Yêu cầu chờ duyệt.
+- Công nợ phải thu.
+- Công nợ phải trả.
+
+Các chỉ số chỉ hiển thị khi dữ liệu nguồn đã có và được xác định rõ.
+
+Bên dưới là danh sách:
+
+**Yêu cầu cần xử lý**
+
+- Phiếu thu mua chờ duyệt.
+- Yêu cầu xuất hàng chờ Owner quyết định.
+- Các trường hợp QC xuất hàng có khác biệt cần quyết định, nếu phát sinh.
+
+**Tình hình vận hành**
+
+- Sản lượng theo ngày hoặc khoảng thời gian.
+- Tình hình tồn kho.
+- Tình hình thu mua và xuất hàng.
+- Sự cố máy móc đang xử lý.
+
+Không dùng biểu đồ lớn để đẩy danh sách công việc xuống dưới. Cho phép bấm vào từng số liệu để mở danh sách tương ứng nếu quyền cho phép.
+
+## 7.2. Quản lý nhà cung cấp
+
+Màn hình danh sách:
+
+- Tên nhà cung cấp.
+- Số điện thoại.
+- Địa chỉ hoặc thông tin liên hệ cần thiết.
+- Tổng hợp lịch sử thu mua.
+- Trạng thái hoạt động.
+- Thao tác.
+
+Danh sách phải ưu tiên tên nhà cung cấp.
+
+Bộ lọc:
+
+- Tìm kiếm theo tên.
+- Trạng thái hoạt động.
+- Khoảng thời gian hoặc tiêu chí liên quan khi cần.
+
+Chi tiết nhà cung cấp:
+
+- Thông tin liên hệ.
+- Lịch sử thu mua.
+- Các phiếu liên quan.
+- Khối lượng đã mua.
+- Giá trị giao dịch theo dữ liệu đã ghi nhận.
+
+Cho phép tạo, cập nhật và ngừng sử dụng theo quyền. Không xóa nhà cung cấp nếu còn liên kết với giao dịch cần lưu lịch sử.
+
+Không hiển thị thông tin không phục vụ cho việc quản lý nhà cung cấp.
+
+## 7.3. Quản lý khách hàng
+
+Danh sách ưu tiên:
+
+- Tên khách hàng.
+- Số điện thoại.
+- Thông tin liên hệ.
+- Lịch sử xuất hàng.
+- Giá trị bán hàng.
+- Số tiền đã thu và còn phải thu nếu có dữ liệu thanh toán.
+
+Chi tiết khách hàng:
+
+- Thông tin liên hệ.
+- Lịch sử đơn/yêu cầu xuất hàng.
+- Các lần bàn giao.
+- Các khoản thu.
+- Số dư phải thu theo dữ liệu thực tế.
+
+Không tự tính số tiền đã thu nếu chưa có nghiệp vụ ghi nhận thanh toán.
+
+## 7.4. Duyệt xuất hàng
+
+Danh sách:
+
+- Mã yêu cầu.
+- Khách hàng.
+- Ngày yêu cầu.
+- Tổng khối lượng.
+- Phân loại Grade.
+- Giá bán đề xuất.
+- Manager phụ trách.
+- Trạng thái.
+
+Chi tiết:
+
+- Thông tin khách hàng.
+- Danh sách lô hàng được đề xuất theo FIFO.
+- Khối lượng từng lô.
+- Grade.
+- Kết quả QC theo ca.
+- Kết quả QC trước xuất.
+- Giá bán.
+- Tổng giá trị.
+- Hình ảnh hoặc chứng từ liên quan.
+- Lịch sử xử lý.
+
+Owner có thể:
+
+- `Duyệt xuất hàng`.
+- `Yêu cầu kiểm tra lại`.
+- `Từ chối`.
+
+Nếu kết quả QC trước xuất khác kết quả QC theo ca, Owner phải có khả năng xem thông tin đối chiếu và đưa ra quyết định phù hợp. Không tự động từ chối Grade B chỉ vì đây là Grade B.
+
+Nếu từ chối hoặc yêu cầu kiểm tra lại, ghi nhận lý do và chuyển yêu cầu về trạng thái phù hợp.
+
+Owner duyệt không làm giảm tồn kho. Việc giảm kho chỉ xảy ra sau khi bàn giao thực tế được xác nhận.
+
+## 7.5. Báo cáo
+
+Các nhóm báo cáo:
+
+- Sản xuất.
+- Tồn kho NVL.
+- Tồn kho thành phẩm.
+- Thu mua.
+- QC.
+- Xuất hàng.
+- Bảo trì.
+- Công nợ phải thu.
+- Công nợ phải trả.
+- Hiệu quả hoạt động.
+
+Bộ lọc chung:
+
+- Từ ngày.
+- Đến ngày.
+- Ca sản xuất nếu áp dụng.
+- Loại giao dịch.
+- Trạng thái.
+- Khách hàng hoặc nhà cung cấp khi phù hợp.
+
+Mỗi báo cáo cần có bảng dữ liệu rõ ràng. Biểu đồ chỉ dùng để hỗ trợ đọc xu hướng, không thay thế bảng số liệu chi tiết.
+
+Không đưa ra kết luận lợi nhuận hoặc hiệu suất nếu chưa xác định đủ công thức, dữ liệu đầu vào và cách xử lý chi phí.
+
+---
+
+# PHẦN VIII. MÀN HÌNH MANAGER
+
+## 8.1. Dashboard Manager
+
+Tiêu đề: `Tổng quan`
+
+Các thẻ nhỏ:
+
+- Kế hoạch sản xuất trong ngày.
+- Báo cáo ca chờ xử lý.
+- Phiếu thu mua chờ duyệt.
+- Yêu cầu bảo trì đang xử lý.
+- Yêu cầu xuất hàng đang xử lý.
+
+Bên dưới:
+
+- Kế hoạch sản xuất hôm nay.
+- Báo cáo ca mới gửi.
+- Phiếu thu mua cần xem.
+- Yêu cầu sửa chữa mới.
+- Yêu cầu xuất hàng đang chờ bước tiếp theo.
+
+Không hiển thị chức năng không thuộc quyền Manager.
+
+## 8.2. Kế hoạch sản xuất
+
+Danh sách:
+
+- Mã kế hoạch.
+- Ngày sản xuất.
+- Ca.
+- Mục tiêu sản lượng.
+- Nhân sự hoặc nhóm phụ trách.
+- Trạng thái.
+- Thao tác.
+
+Tạo kế hoạch:
+
+- Ngày sản xuất.
+- Ca làm việc.
+- Mục tiêu sản lượng.
+- Ghi chú ngắn nếu cần.
+- Phân công Staff.
+- Máy hoặc dây chuyền nếu có dữ liệu tương ứng.
+
+Cho phép cập nhật kế hoạch khi chưa ở trạng thái bị khóa theo nghiệp vụ.
+
+Không tự tạo chỉ tiêu sản lượng hoặc định mức NVL nếu chưa được cung cấp.
+
+## 8.3. Phân công nhân sự
+
+Manager có thể:
+
+- Chọn kế hoạch.
+- Chọn ca.
+- Chọn nhân viên.
+- Gán công việc hoặc công đoạn phù hợp với mô hình thực tế.
+- Xem danh sách đã phân công.
+- Điều chỉnh trước khi công việc được thực hiện theo quy tắc cho phép.
+
+Nhân viên chỉ nhìn thấy phân công của mình hoặc phạm vi được phép.
+
+Không cho Staff tự xác nhận hoàn tất kế hoạch sản xuất thay Manager.
+
+## 8.4. Báo cáo ca
+
+Danh sách:
+
+- Mã báo cáo.
+- Ngày.
+- Ca.
+- Nhân viên gửi.
+- NVL sử dụng.
+- Sản lượng thành phẩm.
+- Thời điểm gửi.
+- Trạng thái.
+
+Chi tiết báo cáo:
+
+- Kế hoạch liên quan.
+- Nhân viên thực hiện.
+- Ca sản xuất.
+- Khối lượng NVL lấy từ kho.
+- Sản lượng thực tế.
+- Thông tin lô thành phẩm.
+- Ghi chú hoặc bằng chứng nếu có.
+- Kết quả QC liên quan.
+- Lịch sử xử lý.
+
+Manager có thể:
+
+- Xem báo cáo.
+- Duyệt báo cáo.
+- Từ chối báo cáo và yêu cầu chỉnh sửa với lý do.
+- Xác nhận kế hoạch đã hoàn thành theo quy trình.
+
+Không cho Manager duyệt khi dữ liệu bắt buộc thiếu hoặc không hợp lệ.
+
+Không cập nhật tồn kho thành phẩm chỉ vì Staff vừa mở hoặc gửi báo cáo. Phải tuân theo điều kiện duyệt và quy trình ghi nhận sản xuất đã xác nhận.
+
+Không cho phép duyệt lặp làm phát sinh giao dịch kho trùng.
+
+## 8.5. Duyệt phiếu thu mua
+
+Danh sách:
+
+- Mã phiếu.
+- Nhà cung cấp.
+- Nhân viên thu mua.
+- Ngày thu mua.
+- Khối lượng ghi nhận.
+- Giá trị giao dịch nếu có.
+- Ảnh phiếu cân.
+- Trạng thái.
+
+Chi tiết:
+
+- Nhà cung cấp.
+- Thông tin giao dịch.
+- Khối lượng cân thực tế.
+- Đơn giá và giá trị nếu có.
+- Hình ảnh phiếu cân.
+- Chứng từ liên quan.
+- Nhân viên thực hiện.
+- Lịch sử xử lý.
+
+Manager có thể duyệt hoặc từ chối. Khi từ chối phải có lý do.
+
+Sau khi duyệt, phiếu chuyển đến bước Thủ kho xác nhận nhận hàng thực tế. Không tự động tăng tồn kho ngay tại bước duyệt phiếu.
+
+Nếu quyền duyệt phiếu thu mua được cấu hình cho cả Manager và Owner, hệ thống phải kiểm tra quyền thực tế theo cấu hình đã xác nhận. Không tự ý thay đổi người có quyền duyệt.
+
+## 8.6. Quản lý sự cố máy móc
+
+Danh sách:
+
+- Mã yêu cầu.
+- Máy.
+- Người gửi.
+- Thời điểm gửi.
+- Mức độ hoặc loại sự cố nếu được xác nhận.
+- Nhân viên bảo trì được giao.
+- Trạng thái.
+
+Chi tiết:
+
+- Máy liên quan.
+- Nội dung sự cố.
+- Hình ảnh hoặc bằng chứng.
+- Người yêu cầu.
+- Lịch sử xử lý.
+- Nhân viên bảo trì.
+- Báo cáo sửa chữa.
+
+Manager có thể tiếp nhận yêu cầu và phân công Maintenance Staff trong cùng một thao tác.
+
+Sau khi Maintenance Staff gửi báo cáo hoàn tất, Manager có thể xác nhận hoặc từ chối kèm lý do.
+
+## 8.7. Quản lý yêu cầu xuất hàng
+
+Manager tạo yêu cầu xuất hàng gồm:
+
+- Khách hàng.
+- Sản phẩm.
+- Khối lượng yêu cầu.
+- Grade được khách hàng chấp nhận hoặc lựa chọn.
+- Giá bán.
+- Ngày dự kiến.
+- Ghi chú cần thiết.
+
+Hệ thống phải kiểm tra tồn kho khả dụng.
+
+Hệ thống đề xuất lô theo FIFO nhưng cho phép người có quyền xem rõ lô, khối lượng và Grade được đề xuất. Không âm thầm lựa chọn lô không phù hợp yêu cầu khách hàng.
+
+Sau khi kiểm tra thông tin, Manager gửi yêu cầu cho Owner quyết định.
+
+Sau khi Owner duyệt:
+
+- Manager liên hệ khách hàng theo quy trình thực tế.
+- Ghi nhận họ tên người nhận.
+- Ghi nhận số điện thoại người nhận.
+- Ghi nhận biển số phương tiện.
+- Phối hợp Thủ kho thực hiện bàn giao.
+- Theo dõi trạng thái cho đến khi hoàn tất.
+
+Không tự động hoàn tất xuất hàng ngay sau khi Owner duyệt.
+
+---
+
+# PHẦN IX. MÀN HÌNH PURCHASING STAFF
+
+## 9.1. Dashboard
+
+Chỉ hiển thị:
+
+- Yêu cầu thu mua được giao.
+- Phiếu đang thực hiện.
+- Phiếu đã gửi Manager.
+- Phiếu cần bổ sung thông tin.
+
+Bên dưới là danh sách công việc cần xử lý.
+
+## 9.2. Danh sách yêu cầu thu mua
+
+Các cột:
+
+- Mã yêu cầu.
+- Nhà cung cấp hoặc địa điểm mua.
+- Ngày yêu cầu.
+- Người giao việc.
+- Trạng thái.
+- Thao tác.
+
+Purchasing Staff chỉ được cập nhật những yêu cầu được phân công hoặc được cấp quyền.
+
+## 9.3. Chi tiết yêu cầu thu mua
+
+Hiển thị:
+
+- Nhà cung cấp.
+- Thông tin liên hệ cần thiết.
+- NVL.
+- Người thực hiện.
+- Thời điểm thực hiện.
+- Thông tin yêu cầu.
+- Khối lượng đã cân.
+- Ảnh phiếu cân.
+- Chứng từ.
+- Đơn giá và tổng tiền nếu có dữ liệu.
+- Trạng thái xử lý.
+
+Không tạo một phiếu thu mua hoàn toàn mới không liên kết với yêu cầu ban đầu nếu nghiệp vụ yêu cầu cập nhật ngay trên yêu cầu đã được giao.
+
+## 9.4. Cập nhật kết quả thu mua
+
+Trường nhập:
+
+- Khối lượng thực tế.
+- Đơn giá nếu có.
+- Ảnh phiếu cân.
+- Chứng từ liên quan.
+- Ghi chú cần thiết.
+
+Yêu cầu:
+
+- Kiểm tra trường bắt buộc.
+- Kiểm tra định dạng số.
+- Cho xem trước hình ảnh đã tải lên.
+- Cho thay thế hình ảnh trước khi gửi.
+- Hiển thị đầy đủ thông tin cùng hình ảnh, không chỉ hiện ảnh riêng lẻ.
+- Khi gửi, chuyển phiếu sang trạng thái chờ duyệt.
+- Sau khi gửi, khóa các trường không còn được phép sửa.
+- Nếu bị từ chối, hiển thị lý do và cho phép bổ sung theo quy trình.
+
+Purchasing Staff không được tự duyệt phiếu và không được tự tăng tồn kho.
+
+---
+
+# PHẦN X. MÀN HÌNH WAREHOUSE KEEPER — THỦ KHO
+
+## 10.1. Dashboard
+
+Các nhóm công việc:
+
+- Phiếu chờ nhận NVL.
+- NVL cần cấp cho sản xuất.
+- Thành phẩm cần tiếp nhận.
+- Yêu cầu xuất hàng cần chuẩn bị.
+- Bàn giao đang thực hiện.
+
+Bên dưới là danh sách cần xử lý, không dùng dashboard lớn.
+
+## 10.2. Tiếp nhận NVL
+
+Danh sách hiển thị các phiếu đã được duyệt và đang chờ nhận thực tế.
+
+Các cột:
+
+- Mã phiếu.
+- Nhà cung cấp.
+- Ngày duyệt.
+- Khối lượng theo phiếu.
+- Người thu mua.
+- Trạng thái nhận.
+- Thao tác.
+
+Chi tiết phiếu:
+
+- Thông tin thu mua.
+- Khối lượng trên phiếu.
+- Ảnh cân.
+- Chứng từ.
+- Thông tin thực nhận.
+- Ghi chú chênh lệch nếu có.
+
+Thao tác:
+
+- Nhập khối lượng thực nhận.
+- Xác nhận nhận hàng.
+- Ghi nhận chênh lệch thực tế.
+- Gửi thông tin chênh lệch để người có thẩm quyền xử lý nếu cần.
+
+Chỉ cộng tồn kho theo khối lượng thực nhận được xác nhận hợp lệ. Không cộng kho lần thứ hai khi mở lại phiếu.
+
+Nếu khối lượng thực nhận khác khối lượng trên phiếu, không âm thầm ghi đè dữ liệu ban đầu. Lưu cả thông tin trên phiếu và thông tin thực nhận.
+
+## 10.3. Cấp NVL cho sản xuất
+
+Danh sách yêu cầu cấp NVL:
+
+- Mã yêu cầu hoặc kế hoạch.
+- Ngày.
+- Ca.
+- Nhân viên hoặc nhóm nhận.
+- Khối lượng yêu cầu nếu có.
+- Trạng thái.
+
+Khi cấp:
+
+- Ghi nhận khối lượng thực tế.
+- Liên kết với kế hoạch hoặc ca.
+- Xác nhận người nhận.
+- Ghi nhận thời điểm cấp.
+- Cập nhật tồn kho theo giao dịch thực tế.
+
+Không dùng số gầu xúc ước lượng để thay thế số cân thực tế nếu có số cân hợp lệ.
+
+Không cấp vượt tồn kho khả dụng.
+
+## 10.4. Tiếp nhận thành phẩm
+
+Thủ kho xem các lô thành phẩm đã hoàn thành điều kiện ghi nhận theo quy trình sản xuất và QC.
+
+Danh sách:
+
+- Mã lô.
+- Ngày sản xuất.
+- Ca.
+- Sản lượng.
+- Grade.
+- Kết quả QC.
+- Trạng thái tiếp nhận.
+
+Chi tiết:
+
+- Thông tin lô.
+- Người sản xuất.
+- Ca sản xuất.
+- Khối lượng.
+- Kết quả QC.
+- Hình ảnh QC.
+- Thông tin đóng bao nếu có.
+
+Thủ kho xác nhận tiếp nhận theo khối lượng thực tế được ghi nhận. Không tự tạo thêm một lô trùng cho cùng một kết quả sản xuất.
+
+## 10.5. Chuẩn bị và bàn giao xuất hàng
+
+Sau khi yêu cầu xuất hàng đã được duyệt:
+
+- Xem khách hàng.
+- Xem khối lượng.
+- Xem Grade.
+- Xem danh sách lô FIFO.
+- Chuẩn bị đúng lô và khối lượng.
+- Phối hợp QC kiểm tra trước xuất.
+- Ghi nhận số lượng hoặc khối lượng thực tế bàn giao.
+- Ghi nhận người nhận và phương tiện theo dữ liệu đã được Manager cập nhật.
+- Xác nhận bàn giao thực tế.
+
+Chỉ khi bước bàn giao được xác nhận hợp lệ, hệ thống mới trừ tồn kho thành phẩm.
+
+Nếu giao hàng một phần, phải ghi nhận phần đã bàn giao và phần còn lại theo trạng thái phù hợp. Không đánh dấu hoàn tất toàn bộ khi mới giao một phần.
+
+---
+
+# PHẦN XI. MÀN HÌNH STAFF — CÔNG NHÂN
+
+## 11.1. Dashboard
+
+Chỉ hiển thị:
+
+- Ca làm việc.
+- Kế hoạch được phân công.
+- Báo cáo ca đang thực hiện.
+- Báo cáo đã gửi.
+- Yêu cầu bảo trì của bản thân.
+
+Không hiển thị dashboard tài chính, danh sách khách hàng toàn hệ thống hoặc thông tin của nhân viên khác nếu không được phép.
+
+## 11.2. Công việc được phân công
+
+Danh sách:
+
+- Ngày.
+- Ca.
+- Kế hoạch.
+- Máy hoặc dây chuyền nếu có.
+- Mục tiêu sản lượng.
+- Trạng thái.
+
+Mở chi tiết để xem thông tin liên quan trực tiếp đến công việc được giao.
+
+## 11.3. Báo cáo sản xuất theo ca
+
+Các trường:
+
+- Ngày sản xuất.
+- Ca.
+- Kế hoạch liên quan.
+- Khối lượng NVL thực tế đã lấy từ kho.
+- Sản lượng thành phẩm thực tế.
+- Ghi chú nếu cần.
+- Thông tin lô sản xuất.
+
+Chỉ yêu cầu những trường có ý nghĩa trong quy trình đã xác nhận.
+
+Không yêu cầu công nhân nhập các bước băm, nghiền, sấy, ép như các giao dịch kho độc lập nếu doanh nghiệp không theo dõi chi tiết từng công đoạn.
+
+### Mã lô thành phẩm
+
+- Tự động sinh mã lô duy nhất.
+- Có thông tin nhận biết ngày sản xuất và ca.
+- Số thứ tự tăng theo quy tắc đã xác định.
+- Có thể xác định người hoặc nhóm sản xuất qua dữ liệu liên kết.
+- Không để người dùng tự nhập mã tùy ý nếu mã được hệ thống quản lý.
+- Không tạo mã trùng khi gửi lại báo cáo.
+
+Ví dụ định dạng tham khảo: `TP/26/10/21-01`. Đây chỉ là ví dụ định dạng; hãy thiết kế bộ sinh mã phù hợp với ngày, ca và số thứ tự thực tế.
+
+### Gửi báo cáo
+
+- Kiểm tra dữ liệu bắt buộc.
+- Hiển thị xác nhận trước khi gửi nếu hành động không thể sửa trực tiếp sau đó.
+- Chuyển trạng thái sang chờ Manager xử lý.
+- Không cho người gửi tự duyệt báo cáo.
+- Không cộng kho trùng khi gửi nhiều lần.
+- Cho phép chỉnh sửa theo quy trình khi báo cáo bị trả lại.
+
+---
+
+# PHẦN XII. MÀN HÌNH QC STAFF
+
+## 12.1. Dashboard QC
+
+Thẻ nhỏ:
+
+- Lô chờ kiểm tra.
+- Kết quả kiểm tra trong ngày.
+- Yêu cầu QC trước xuất.
+
+Bên dưới là danh sách công việc.
+
+## 12.2. QC theo ca
+
+Danh sách:
+
+- Mã lô.
+- Ngày sản xuất.
+- Ca.
+- Nhân viên hoặc nhóm sản xuất.
+- Khối lượng.
+- Trạng thái QC.
+- Thao tác.
+
+Màn hình kiểm tra:
+
+- Thông tin lô.
+- Thời điểm kiểm tra.
+- Người kiểm tra.
+- Grade.
+- Các chỉ tiêu kiểm tra đã được doanh nghiệp xác nhận.
+- Kết quả từng chỉ tiêu.
+- Hình ảnh bằng chứng.
+- Ghi chú nếu cần.
+
+Mọi ngày có thực hiện kiểm tra QC phải cho phép đính kèm hình ảnh bằng chứng theo yêu cầu nghiệp vụ.
+
+Hình ảnh phải được hiển thị cùng bản ghi QC và các thông tin liên quan. Không tạo giao diện chỉ có ảnh mà thiếu kết quả kiểm tra.
+
+Không tự thêm tiêu chuẩn chất lượng hoặc ngưỡng đạt/không đạt khi chưa có quy định xác nhận.
+
+## 12.3. Phân loại thành phẩm
+
+Kết quả phân loại gồm:
+
+- Grade A.
+- Grade B.
+
+Cả hai đều là thành phẩm có thể bán.
+
+Không dùng các nhãn:
+
+- Tốt / Xấu thay cho Grade A/B.
+- Đạt / Không đạt để suy ra Grade A/B.
+- Xuất khẩu / Nội địa để suy ra Grade A/B.
+
+Nếu cần trạng thái đạt yêu cầu QC, lưu trạng thái kiểm tra riêng biệt với Grade.
+
+## 12.4. QC trước xuất hàng
+
+Danh sách:
+
+- Mã yêu cầu xuất hàng.
+- Khách hàng.
+- Lô hàng.
+- Khối lượng.
+- Grade.
+- Kết quả QC theo ca.
+- Trạng thái QC trước xuất.
+
+Màn hình chi tiết:
+
+- Thông tin yêu cầu xuất hàng.
+- Danh sách lô thực tế được chuẩn bị.
+- Kết quả QC theo ca.
+- Kết quả kiểm tra trước xuất.
+- Các chỉ tiêu và bằng chứng.
+- Ảnh kiểm tra.
+- Người kiểm tra.
+- Thời điểm kiểm tra.
+
+Nếu kết quả QC trước xuất khác kết quả QC theo ca:
+
+1. Ghi nhận rõ sự khác biệt.
+2. Không tự ý sửa kết quả QC cũ.
+3. Không tự động từ chối lô.
+4. Chuyển thông tin đến Owner để quyết định.
+5. Cho Owner lựa chọn duyệt xuất, yêu cầu kiểm tra thêm hoặc không duyệt xuất.
+
+---
+
+# PHẦN XIII. MÀN HÌNH MAINTENANCE STAFF
+
+## 13.1. Dashboard
+
+Chỉ hiển thị:
+
+- Công việc sửa chữa được giao.
+- Công việc đang thực hiện.
+- Báo cáo chờ xác nhận.
+- Yêu cầu vật tư liên quan nếu có.
+
+## 13.2. Danh sách sửa chữa
+
+Các cột:
+
+- Mã yêu cầu.
+- Máy.
+- Ngày yêu cầu.
+- Manager giao việc.
+- Trạng thái.
+- Thao tác.
+
+## 13.3. Chi tiết yêu cầu
+
+Hiển thị:
+
+- Máy.
+- Nội dung sự cố.
+- Người yêu cầu.
+- Thời điểm yêu cầu.
+- Hình ảnh bằng chứng.
+- Nội dung phân công.
+- Lịch sử xử lý.
+
+## 13.4. Báo cáo hoàn tất sửa chữa
+
+Trường:
+
+- Kết quả sửa chữa.
+- Thời điểm hoàn tất.
+- Hình ảnh hoặc bằng chứng nếu có.
+- Vật tư đã sử dụng nếu được theo dõi.
+- Ghi chú cần thiết.
+
+Sau khi gửi, chuyển yêu cầu cho Manager xác nhận.
+
+Maintenance Staff không tự xác nhận yêu cầu đã hoàn tất.
+
+Nếu Manager từ chối báo cáo, hiển thị lý do và cho phép cập nhật theo quy trình.
+
+## 13.5. Yêu cầu vật tư bảo trì
+
+Nếu chức năng yêu cầu vật tư được triển khai:
+
+- Cho phép thêm nhiều mặt hàng trong cùng một yêu cầu.
+- Mỗi mặt hàng có tên, số lượng và thông tin cần thiết.
+- Manager duyệt hoặc từ chối từng mặt hàng độc lập.
+- Không tự động duyệt toàn bộ danh sách khi chỉ một mặt hàng được duyệt.
+- Hiển thị trạng thái riêng của từng mặt hàng.
+
+Không tự động trừ kho vật tư bảo trì nếu chưa có nghiệp vụ quản lý kho vật tư được xác nhận.
+
+---
+
+# PHẦN XIV. MÀN HÌNH ADMIN SYSTEM
+
+Admin System chỉ quản lý tài khoản và quyền sử dụng chức năng.
+
+## 14.1. Dashboard
+
+Không cần dashboard nghiệp vụ lớn.
+
+Có thể hiển thị các thẻ nhỏ:
+
+- Tổng tài khoản.
+- Tài khoản đang hoạt động.
+- Tài khoản ngừng sử dụng.
+
+Bên dưới là danh sách tài khoản.
+
+## 14.2. Danh sách tài khoản
+
+Các cột:
+
+- Tên người dùng.
+- Tài khoản đăng nhập.
+- Vai trò.
+- Trạng thái.
+- Ngày tạo.
+- Thao tác.
+
+Bộ lọc:
+
+- Tên hoặc tài khoản.
+- Vai trò.
+- Trạng thái.
+
+## 14.3. Tạo và chỉnh sửa tài khoản
+
+Các trường:
+
+- Họ tên.
+- Tên đăng nhập.
+- Vai trò.
+- Thông tin liên hệ nếu cần.
+- Trạng thái.
+
+Yêu cầu:
+
+- Kiểm tra tài khoản trùng.
+- Không để tài khoản không hợp lệ được tạo.
+- Không cho tài khoản tự cấp quyền cho chính mình.
+- Không cho người dùng không có quyền thay đổi vai trò.
+- Khi đổi vai trò, cập nhật menu và quyền thực tế.
+- Khi ngừng sử dụng, ngăn đăng nhập mới theo quy tắc hệ thống.
+- Không xóa lịch sử nghiệp vụ của tài khoản đã thực hiện giao dịch.
+
+Không hiển thị cho Admin các nút duyệt mua hàng, duyệt sản xuất hoặc duyệt xuất hàng nếu không có quyền nghiệp vụ tương ứng được xác nhận.
+
+---
+
+# PHẦN XV. THÔNG BÁO TRONG HỆ THỐNG
+
+Xây dựng thông báo nội bộ cho các sự kiện cần người khác xử lý:
+
+- Có phiếu thu mua chờ duyệt.
+- Phiếu thu mua bị từ chối.
+- Có NVL chờ nhận.
+- Có báo cáo ca chờ xử lý.
+- Báo cáo ca bị trả lại.
+- Có yêu cầu bảo trì mới.
+- Có công việc bảo trì được giao.
+- Báo cáo sửa chữa chờ xác nhận.
+- Có yêu cầu xuất hàng chờ Owner quyết định.
+- Owner yêu cầu QC kiểm tra thêm.
+- Có yêu cầu bàn giao xuất hàng.
+- Có thay đổi trạng thái quan trọng liên quan đến người dùng.
+
+Yêu cầu:
+
+- Thông báo có thời điểm.
+- Bấm vào thông báo mở đúng bản ghi nếu người dùng có quyền.
+- Có trạng thái đã đọc/chưa đọc.
+- Không gửi thông báo cho người không liên quan.
+- Không tạo thông báo trùng cho cùng một sự kiện do xử lý lặp.
+- Không dùng thông báo để thay thế trạng thái chính thức của giao dịch.
+
+Zalo là hướng tích hợp trong tương lai, không phải yêu cầu bắt buộc của phiên bản hiện tại.
+
+---
+
+# PHẦN XVI. LỊCH SỬ NGHIỆP VỤ VÀ CHỨNG TỪ
+
+Tại các trang chi tiết, khi có ý nghĩa nghiệp vụ, hiển thị các tab ngắn gọn:
+
+- Thông tin chung.
+- Chứng từ.
+- Lịch sử xử lý.
+
+Không tạo quá nhiều tab rỗng.
+
+## 16.1. Hình ảnh và tệp đính kèm
+
+Các bản ghi có hình ảnh phải hiển thị:
+
+- Thông tin bản ghi.
+- Tên hoặc loại chứng từ.
+- Hình ảnh thu nhỏ.
+- Thời điểm đính kèm nếu có.
+- Người gửi nếu có.
+- Chức năng xem ảnh lớn.
+
+Không hiển thị ảnh tách rời khỏi dữ liệu nghiệp vụ.
+
+Không cho phép tệp không hợp lệ hoặc vượt giới hạn được cấu hình.
+
+Không giả định tải ảnh thành công nếu việc lưu trữ thất bại.
+
+## 16.2. Lịch sử xử lý
+
+Với các giao dịch quan trọng, lưu:
+
+- Người thực hiện.
+- Thời điểm.
+- Hành động.
+- Trạng thái trước và sau nếu phù hợp.
+- Lý do từ chối hoặc điều chỉnh.
+- Thông tin tham chiếu đến bản ghi liên quan.
+
+Dùng các tên thân thiện như `Lịch sử thu mua`, `Lịch sử sản xuất`, `Lịch sử nhập xuất kho`, `Lịch sử kiểm tra chất lượng` và `Lịch sử xử lý`.
+
+Không hiển thị thuật ngữ kỹ thuật về nhật ký hệ thống trong màn hình nghiệp vụ thông thường.
+
+---
+
+# PHẦN XVII. TỒN KHO, FIFO VÀ ĐỐI CHIẾU SỐ LIỆU
+
+## 17.1. Màn hình tồn kho NVL
+
+Danh sách:
+
+- Tên NVL.
+- Tổng khối lượng tồn.
+- Đơn vị.
+- Lần nhập gần nhất nếu cần.
+- Trạng thái tồn kho nếu có ngưỡng đã cấu hình.
+- Thao tác xem chi tiết.
+
+Không tự tạo ngưỡng cảnh báo thấp nếu chưa có cấu hình.
+
+Chi tiết:
+
+- Các lần nhập kho.
+- Các lần cấp cho sản xuất.
+- Khối lượng tăng.
+- Khối lượng giảm.
+- Số dư sau giao dịch.
+- Ngày giờ.
+- Phiếu liên quan.
+
+## 17.2. Màn hình tồn kho thành phẩm
+
+Danh sách:
+
+- Mã lô.
+- Ngày sản xuất.
+- Ca.
+- Grade.
+- Khối lượng ban đầu.
+- Khối lượng đã xuất.
+- Khối lượng còn lại.
+- Trạng thái QC.
+- Trạng thái tồn kho.
+
+Chỉ hiển thị các lô còn lượng tồn có thể sử dụng trong danh sách mặc định, đồng thời cho phép xem lịch sử nếu cần.
+
+## 17.3. FIFO
+
+Khi lập danh sách xuất hàng:
+
+1. Sắp xếp lô theo thời điểm sản xuất từ cũ đến mới.
+2. Kiểm tra trạng thái QC.
+3. Kiểm tra lượng còn lại.
+4. Kiểm tra yêu cầu Grade của khách hàng.
+5. Chọn lượng phù hợp theo FIFO.
+6. Hiển thị các lô được chọn trước khi xác nhận.
+7. Không xuất lô không đủ điều kiện theo quy tắc đã xác nhận.
+
+Nếu khách hàng chỉ chấp nhận một Grade cụ thể, chỉ chọn các lô phù hợp. Trong phạm vi các lô phù hợp, áp dụng FIFO.
+
+Nếu không đủ tồn kho phù hợp, hiển thị lượng còn thiếu. Không tự động đổi Grade hoặc khách hàng.
+
+## 17.4. Đối chiếu số liệu
+
+Cho phép so sánh các nguồn dữ liệu có liên quan:
+
+- Phiếu mua và số thực nhận.
+- Khối lượng NVL cấp và báo cáo ca.
+- Sản lượng báo cáo và sản lượng được xác nhận.
+- QC theo ca và QC trước xuất.
+- Khối lượng được duyệt xuất và khối lượng bàn giao thực tế.
+
+Không tự suy ra hao hụt chính xác nếu dữ liệu không đủ.
+
+Mọi công thức chi phí, định mức NVL, lợi nhuận và hiệu suất phải được xây dựng từ quy tắc đã được xác nhận. Nếu chưa xác định, đánh dấu là hạng mục cần xác nhận trong phạm vi triển khai, không tự bịa công thức rồi trình bày kết quả như dữ liệu thật.
+
+---
+
+# PHẦN XVIII. CÔNG NỢ VÀ TÀI CHÍNH
+
+Xây dựng màn hình theo dõi các khoản phải trả nhà cung cấp và phải thu khách hàng dựa trên dữ liệu giao dịch có thật.
+
+## 18.1. Công nợ phải trả
+
+Danh sách:
+
+- Nhà cung cấp.
+- Mã giao dịch.
+- Ngày giao dịch.
+- Giá trị giao dịch.
+- Số tiền đã thanh toán.
+- Số tiền còn phải trả.
+- Trạng thái.
+
+## 18.2. Công nợ phải thu
+
+Danh sách:
+
+- Khách hàng.
+- Mã yêu cầu hoặc đơn xuất hàng.
+- Ngày giao hàng.
+- Giá trị bán hàng.
+- Số tiền đã thu.
+- Số tiền còn phải thu.
+- Trạng thái.
+
+Không mặc định một đơn xuất hàng đã được thanh toán chỉ vì đơn đã hoàn tất.
+
+Không tự tạo nghiệp vụ thu tiền hoặc thanh toán nếu chưa có chức năng ghi nhận tương ứng.
+
+Nếu chưa triển khai chức năng ghi nhận thanh toán, chỉ hiển thị những thông tin tài chính có thể xác định chính xác và không tạo số dư giả.
+
+---
+
+# PHẦN XIX. CÁC QUY TRÌNH TRẠNG THÁI PHẢI KIỂM THỬ
+
+## 19.1. Thu mua và nhập NVL
+
+Luồng nghiệp vụ:
+
+Manager tạo yêu cầu thu mua → Purchasing Staff cập nhật kết quả thực tế → gửi Manager → Manager duyệt hoặc từ chối → nếu duyệt, Thủ kho xác nhận nhận hàng → hệ thống cập nhật tồn kho theo khối lượng thực nhận.
+
+Kiểm tra:
+
+- Không có phiếu thu mua ngoài phân công nếu không có quyền.
+- Không gửi phiếu thiếu dữ liệu bắt buộc.
+- Không tự duyệt.
+- Không cộng kho khi mới duyệt mua.
+- Không cộng kho trước khi Thủ kho xác nhận nhận hàng.
+- Không cộng kho hai lần.
+- Từ chối phải có lý do.
+- Chênh lệch giữa khối lượng trên phiếu và thực nhận phải được thể hiện rõ.
+- Lịch sử xử lý phải đúng.
+
+## 19.2. Sản xuất
+
+Luồng nghiệp vụ:
+
+Manager lập kế hoạch → phân công nhân viên → Staff ghi nhận đầu vào và đầu ra theo ca → gửi báo cáo → Manager xử lý báo cáo → hệ thống ghi nhận dữ liệu sản xuất theo điều kiện đã xác nhận → QC kiểm tra lô.
+
+Kiểm tra:
+
+- Staff chỉ thấy phân công phù hợp.
+- Staff không tự duyệt báo cáo.
+- Mã lô không trùng.
+- Không tự tạo bán thành phẩm tồn kho.
+- Không tự tính hao hụt chi tiết từng công đoạn.
+- Không cộng kho trùng.
+- Báo cáo bị từ chối phải hiển thị lý do.
+- Lô thành phẩm phải liên kết với ca, ngày và dữ liệu sản xuất.
+
+## 19.3. QC
+
+Kiểm tra:
+
+- QC theo ca phải gắn với lô.
+- Ảnh kiểm tra được lưu đúng bản ghi.
+- Grade A/B được lưu riêng với trạng thái kiểm tra.
+- Grade B không bị mặc định cấm bán.
+- QC trước xuất gắn với lô thực tế được chuẩn bị.
+- Khác biệt QC phải được thể hiện.
+- Owner có thể quyết định xử lý.
+- Không tự động thay đổi kết quả QC cũ.
+
+## 19.4. Xuất hàng
+
+Luồng nghiệp vụ:
+
+Manager tạo yêu cầu → hệ thống đề xuất lô FIFO phù hợp → QC kiểm tra trước xuất → Manager gửi Owner quyết định theo quy trình → Owner duyệt hoặc yêu cầu kiểm tra thêm hoặc từ chối → Manager hoàn thiện thông tin bàn giao → Thủ kho bàn giao thực tế → xác nhận xuất hàng → hệ thống trừ kho.
+
+Kiểm tra:
+
+- Không cho xuất vượt tồn kho khả dụng.
+- Không chọn lô không phù hợp Grade theo yêu cầu khách hàng.
+- Không trừ kho khi mới tạo yêu cầu.
+- Không trừ kho khi Owner vừa duyệt.
+- Không trừ kho khi mới chuẩn bị hàng.
+- Chỉ trừ kho sau khi bàn giao thực tế được xác nhận.
+- Không trừ kho hai lần.
+- Nếu bàn giao một phần, tồn kho và trạng thái phải đúng.
+- Nếu QC trước xuất khác QC theo ca, Owner có quyền quyết định theo nghiệp vụ.
+- Nếu bị từ chối, yêu cầu không được coi là đã xuất.
+
+## 19.5. Bảo trì
+
+Luồng nghiệp vụ:
+
+Staff gửi yêu cầu → Manager tiếp nhận và giao Maintenance Staff → Maintenance Staff thực hiện và gửi báo cáo → Manager xác nhận hoặc từ chối.
+
+Kiểm tra:
+
+- Máy liên quan được xác định từ phân công khi có dữ liệu.
+- Hình ảnh gắn đúng yêu cầu.
+- Manager có thể giao người thực hiện trong cùng thao tác tiếp nhận.
+- Maintenance Staff chỉ cập nhật công việc được giao.
+- Không tự xác nhận hoàn tất.
+- Từ chối có lý do.
+- Vật tư trong yêu cầu được duyệt độc lập theo từng mặt hàng nếu chức năng được triển khai.
+
+---
+
+# PHẦN XX. KIỂM THỬ ĐÚNG ACTOR
+
+Không chỉ kiểm tra bằng tài khoản Admin hoặc một tài khoản có toàn quyền.
+
+Phải tạo bộ tài khoản kiểm thử cho từng vai trò:
+
+- Owner.
+- Manager.
+- Purchasing Staff.
+- Warehouse Keeper.
+- Staff.
+- QC Staff.
+- Maintenance Staff.
+- Admin System.
+
+## 20.1. Kiểm thử quyền truy cập
+
+Với mỗi vai trò, kiểm tra:
+
+1. Menu nào được hiển thị.
+2. Trang nào được phép mở.
+3. Dữ liệu nào được xem.
+4. Nút nào được hiển thị.
+5. Hành động nào được thực hiện.
+6. Hành động nào bị chặn.
+7. URL trực tiếp có vượt qua quyền không.
+8. API có từ chối thao tác không đủ quyền không.
+9. Thông tin của vai trò khác có bị lộ không.
+10. Sau khi đổi vai trò, quyền có cập nhật chính xác không.
+
+Ví dụ:
+
+- Purchasing Staff không được duyệt phiếu mua của mình.
+- Staff không được duyệt báo cáo ca của mình.
+- Warehouse Keeper không được duyệt mua hàng.
+- QC Staff không được duyệt xuất hàng thay Owner.
+- Maintenance Staff không được xác nhận hoàn tất sửa chữa của mình.
+- Admin System không mặc nhiên được thực hiện nghiệp vụ Owner.
+- Owner không bị giới hạn khỏi các trang nghiệp vụ thuộc quyền của Owner.
+- Manager không được thực hiện thao tác chỉ dành cho Owner nếu chưa được cấp quyền.
+
+## 20.2. Kiểm thử dữ liệu giữa các vai trò
+
+Một quy trình phải được kiểm tra xuyên suốt bằng nhiều tài khoản, không chỉ chạy bằng một tài khoản duy nhất.
+
+Ví dụ thu mua:
+
+1. Manager tạo yêu cầu.
+2. Purchasing Staff mở đúng yêu cầu.
+3. Purchasing Staff cập nhật kết quả và gửi.
+4. Manager mở đúng phiếu và duyệt.
+5. Warehouse Keeper thấy phiếu chờ nhận.
+6. Warehouse Keeper xác nhận nhận hàng.
+7. Tồn kho tăng đúng một lần.
+8. Owner và Manager xem được dữ liệu tương ứng theo quyền.
+
+Ví dụ xuất hàng:
+
+1. Manager tạo yêu cầu.
+2. QC Staff kiểm tra đúng lô.
+3. Manager gửi Owner.
+4. Owner đưa ra quyết định.
+5. Manager cập nhật thông tin bàn giao.
+6. Warehouse Keeper xác nhận bàn giao thực tế.
+7. Tồn kho giảm đúng khối lượng đã giao.
+8. Báo cáo xuất hàng và công nợ phản ánh đúng dữ liệu thực tế đã ghi nhận.
+
+---
+
+# PHẦN XXI. KIỂM THỬ TỪNG CHỨC NĂNG VÀ TỪNG MÀN HÌNH
+
+Tạo test case có cấu trúc:
+
+| Trường | Nội dung |
+|---|---|
+| Test Case ID | Mã kiểm thử duy nhất |
+| Module | Module cần kiểm thử |
+| Actor | Vai trò thực hiện |
+| Preconditions | Điều kiện ban đầu |
+| Steps | Các bước thực hiện |
+| Test Data | Dữ liệu kiểm thử |
+| Expected Result | Kết quả mong đợi |
+| Actual Result | Kết quả thực tế |
+| Status | Pass / Fail |
+| Bug Reference | Mã lỗi nếu có |
+
+## 21.1. Kiểm thử giao diện
+
+Mỗi màn hình cần kiểm tra:
+
+- Tiêu đề.
+- Tên menu.
+- Tên trường.
+- Dấu câu.
+- Thứ tự các thành phần.
+- Kích thước thẻ tổng quan.
+- Vị trí danh sách.
+- Chiều cao hiển thị danh sách.
+- Tìm kiếm.
+- Bộ lọc.
+- Phân trang.
+- Sắp xếp.
+- Modal.
+- Nút chính và nút phụ.
+- Trạng thái tải.
+- Trạng thái rỗng.
+- Trạng thái lỗi.
+- Hiển thị ảnh.
+- Responsive.
+- Khả năng đọc bằng bàn phím.
+- Focus và trạng thái tương tác.
+
+## 21.2. Kiểm thử dữ liệu
+
+- Dữ liệu mới có được lưu không.
+- Tải lại trang có còn dữ liệu không.
+- Các trang liên quan có đồng bộ không.
+- Có bản ghi trùng không.
+- Có cộng hoặc trừ kho hai lần không.
+- Tổng tiền có đúng theo công thức đã xác nhận không.
+- Ngày giờ có đúng không.
+- Mã lô có trùng không.
+- Tìm kiếm và bộ lọc có trả về đúng kết quả không.
+- Phân trang có đúng tổng số bản ghi không.
+- Các trường hợp rỗng có được xử lý không.
+
+## 21.3. Kiểm thử tình huống lỗi
+
+Phải kiểm thử tối thiểu:
+
+- Bỏ trống trường bắt buộc.
+- Nhập số âm vào trường không chấp nhận số âm.
+- Nhập chữ vào trường số.
+- Nhập khối lượng vượt tồn kho.
+- Tải tệp sai định dạng.
+- Tải tệp vượt giới hạn.
+- Mất kết nối khi gửi.
+- Bấm gửi liên tục.
+- Tải lại trang giữa lúc thao tác.
+- Hai người dùng xử lý cùng một phiếu.
+- Truy cập URL không có quyền.
+- Gửi yêu cầu với trạng thái không hợp lệ.
+- Cố duyệt một phiếu đã duyệt.
+- Cố xuất một lô không còn tồn.
+- Cố sửa bản ghi đã khóa.
+- Đăng nhập bằng tài khoản ngừng sử dụng.
+
+## 21.4. Kiểm thử regression
+
+Sau mỗi đợt sửa lỗi, chạy lại những test case liên quan và các nghiệp vụ dễ bị ảnh hưởng.
+
+Không sửa một màn hình khiến màn hình khác mất chức năng hoặc thay đổi dữ liệu sai.
+
+Không coi việc build thành công là bằng chứng hệ thống đã hoạt động đúng.
+
+---
+
+# PHẦN XXII. TỐI ƯU HIỆU NĂNG VÀ CHẤT LƯỢNG
+
+- Không tải lại toàn bộ trang khi chỉ cần cập nhật một danh sách.
+- Không tải mọi dữ liệu của toàn bộ hệ thống vào một màn hình.
+- Dùng phân trang phù hợp.
+- Tối ưu ảnh đính kèm.
+- Không tạo nhiều request giống nhau không cần thiết.
+- Hiển thị trạng thái đang xử lý khi thao tác cần thời gian.
+- Chặn thao tác gửi lặp trong thời gian xử lý.
+- Xử lý lỗi có kiểm soát.
+- Không để lỗi JavaScript làm hỏng toàn bộ ứng dụng.
+- Không để dữ liệu rỗng gây lỗi hiển thị.
+- Không sử dụng dữ liệu mẫu cứng thay cho API thật trong môi trường vận hành.
+- Không ghi thông tin bí mật vào log phía client.
+- Không dựa vào kiểm tra frontend làm cơ chế phân quyền duy nhất.
+
+---
+
+# PHẦN XXIII. KIỂM TRA THIẾT KẾ VÀ NỘI DUNG TRƯỚC KHI BÀN GIAO
+
+Rà soát toàn bộ hệ thống và loại bỏ:
+
+- Các đoạn giới thiệu dài.
+- Các hướng dẫn sử dụng không cần thiết.
+- Các câu giải thích về cách hệ thống được thiết kế.
+- Các câu dành cho developer hoặc người xây dựng.
+- Các nhãn tiếng Anh còn sót lại không cần thiết.
+- Các tiêu đề lặp lại.
+- Các thẻ tổng quan quá lớn.
+- Các biểu đồ không phục vụ công việc.
+- Các khoảng trắng quá rộng.
+- Các bảng có cột không cần thiết.
+- Các menu không hoạt động.
+- Các nút không có chức năng.
+- Các nút xuất hiện sai vai trò.
+- Các bản ghi demo không được đánh dấu.
+- Các thông báo giả.
+- Các trường nhập không cần thiết.
+- Các dữ liệu được tính toán từ giả định chưa xác nhận.
+- Các trạng thái không rõ nghĩa.
+- Các trang không có đường quay lại phù hợp.
+- Các ảnh không có thông tin bản ghi liên quan.
+- Các thông báo lỗi khó hiểu.
+- Các trang trống do phân quyền sai.
+
+Không đưa những câu như “dữ liệu chủ (master data)”, “bảo mật và không thể thay đổi”, “hệ thống được thiết kế để...” hoặc các nội dung giải thích tương tự vào giao diện bàn giao, trừ khi có nhu cầu nghiệp vụ thực sự.
+
+## 23.1. Tiêu chuẩn màn hình chuyên nghiệp
+
+Một màn hình chỉ được xem là hoàn thiện khi:
+
+- Người dùng nhìn vào biết mình đang ở đâu.
+- Thông tin quan trọng dễ tìm.
+- Có thể xác định bản ghi cần xử lý.
+- Thao tác chính dễ nhìn thấy.
+- Không có nội dung dư thừa.
+- Danh sách được ưu tiên diện tích.
+- Trạng thái rõ ràng.
+- Lỗi có thể hiểu và xử lý.
+- Dữ liệu đúng vai trò.
+- Các nút hoạt động thực sự.
+- Responsive không bị vỡ.
+- Không có lỗi hiển thị nghiêm trọng.
+
+---
+
+# PHẦN XXIV. TIÊU CHUẨN NGHIỆM THU CUỐI CÙNG
+
+Không tuyên bố hoàn thành nếu chưa kiểm tra những tiêu chí sau.
+
+## 24.1. Nghiệp vụ
+
+- Tất cả module trong phạm vi đã xác nhận đều có màn hình tương ứng.
+- Các quy trình có đầu vào, xử lý, trạng thái và kết quả rõ ràng.
+- Quyền duyệt đúng actor.
+- Không tự động cộng hoặc trừ kho sai thời điểm.
+- FIFO hoạt động đúng.
+- Grade A/B được xử lý đúng.
+- QC trước xuất được liên kết với QC theo ca.
+- Chênh lệch được thể hiện và chuyển đúng người quyết định.
+- Các báo cáo sử dụng dữ liệu nguồn chính xác.
+- Không có công thức kinh doanh tự bịa.
+
+## 24.2. Giao diện
+
+- Các thẻ tổng quan nhỏ gọn.
+- Danh sách xuất hiện sớm trên màn hình.
+- Không có mô tả dài không cần thiết.
+- Nội dung và dấu câu nhất quán.
+- Không có menu hoặc nút thừa.
+- Không có lỗi responsive nghiêm trọng.
+- Mọi biểu mẫu có validation phù hợp.
+- Các trạng thái rỗng, lỗi và đang tải hoạt động đúng.
+- Ảnh được hiển thị cùng dữ liệu liên quan.
+
+## 24.3. Phân quyền
+
+- Đã kiểm thử đủ tám actor.
+- Không có actor nào thấy chức năng trái quyền.
+- Không có actor nào thực hiện được thao tác bị cấm thông qua URL hoặc API.
+- Các nghiệp vụ liên actor hoạt động xuyên suốt.
+- Tài khoản ngừng sử dụng không thể đăng nhập.
+- Admin không mặc nhiên có quyền nghiệp vụ Owner.
+
+## 24.4. Chất lượng kỹ thuật
+
+- Không còn lỗi build.
+- Không còn lỗi runtime nghiêm trọng.
+- Không có nút chính bị vô hiệu ngoài ý muốn.
+- Không có chức năng chỉ giả lập kết quả trong môi trường vận hành.
+- Không có dữ liệu trùng do gửi lặp.
+- Không có cập nhật kho sai hoặc hai lần.
+- Dữ liệu được lưu và đọc lại đúng.
+- Các test case quan trọng đã chạy và có kết quả thực tế.
+- Các lỗi còn lại được liệt kê rõ, không che giấu.
+
+---
+
+# PHẦN XXV. CÁCH TRIỂN KHAI BẮT BUỘC
+
+Hãy thực hiện theo thứ tự sau:
+
+### Bước 1 — Rà soát toàn bộ repository
+
+Đọc mã nguồn, cấu trúc dữ liệu, components, routes, API, quyền truy cập và các chức năng hiện có. Không kết luận dựa trên tên file hoặc ảnh chụp giao diện.
+
+### Bước 2 — Lập bản đồ màn hình và quyền
+
+Tạo ma trận:
+
+`Actor → Menu → Screen → Data Access → Actions → Business Rules → Test Cases`
+
+Đối chiếu từng màn hình với đúng actor và nghiệp vụ.
+
+### Bước 3 — Xác định luồng dữ liệu
+
+Kiểm tra mối quan hệ giữa thu mua, nhập kho, cấp NVL, sản xuất, QC, thành phẩm, xuất hàng, công nợ và báo cáo.
+
+Mọi thay đổi dữ liệu phải có nguồn gốc nghiệp vụ hợp lệ.
+
+### Bước 4 — Hoàn thiện design system
+
+Xây dựng bộ thành phần dùng chung:
+
+- Sidebar.
+- Header.
+- Page title.
+- Compact summary cards.
+- Search and filters.
+- Data table.
+- Pagination.
+- Status badge.
+- Form fields.
+- Modal hoặc drawer.
+- Confirmation dialog.
+- Notification.
+- File upload.
+- Image preview.
+- Empty state.
+- Loading state.
+- Error state.
+
+### Bước 5 — Xây dựng lại từng module
+
+Ưu tiên theo thứ tự:
+
+1. Đăng nhập và phân quyền.
+2. Khung giao diện dùng chung.
+3. Tài khoản.
+4. Thu mua và nhập NVL.
+5. Kho và cấp NVL.
+6. Kế hoạch và báo cáo sản xuất.
+7. QC.
+8. Kho thành phẩm.
+9. Xuất hàng và bàn giao.
+10. Bảo trì.
+11. Khách hàng và nhà cung cấp.
+12. Công nợ và báo cáo.
+13. Thông báo.
+
+Mỗi module phải hoàn thiện giao diện, logic, quyền, validation và test case trước khi chuyển sang module tiếp theo.
+
+### Bước 6 — Kiểm thử liên vai trò
+
+Chạy thử các quy trình bằng nhiều tài khoản khác nhau, bao gồm cả trường hợp đúng, sai, từ chối, gửi lặp, không đủ quyền và dữ liệu không hợp lệ.
+
+### Bước 7 — Rà soát toàn bộ UX/UI
+
+Kiểm tra lại từng màn hình, từng nút, từng nhãn, từng dấu câu, từng khoảng cách, từng bảng và từng trạng thái responsive.
+
+Thu nhỏ phần tổng quan nếu nó đang chiếm nhiều diện tích hơn danh sách nghiệp vụ.
+
+### Bước 8 — Sửa lỗi và kiểm thử hồi quy
+
+Sau khi sửa, chạy lại các test case liên quan và xác nhận lỗi đã được khắc phục thực sự.
+
+### Bước 9 — Bàn giao
+
+Cung cấp:
+
+- Mã nguồn hoàn chỉnh.
+- Hướng dẫn chạy dự án dành cho người triển khai.
+- Cấu trúc database và migration nếu có.
+- Tài khoản thử nghiệm cho từng actor trong môi trường demo.
+- Danh sách module đã hoàn thành.
+- Danh sách test case và kết quả thực tế.
+- Danh sách lỗi chưa giải quyết nếu có.
+- Các cấu hình còn cần doanh nghiệp xác nhận.
+
+Những tài liệu triển khai này phải được cung cấp riêng, không đưa vào giao diện nghiệp vụ dành cho khách hàng.
+
+---
+
+# PHẦN XXVI. YÊU CẦU CUỐI CÙNG DÀNH CHO AI LẬP TRÌNH
+
+Hãy code trực tiếp và hoàn thiện hệ thống dựa trên toàn bộ yêu cầu trong prompt này.
+
+Không chỉ trả lời bằng kế hoạch, sơ đồ, phân tích hoặc các đoạn code minh họa rời rạc.
+
+Không tự ý lược bỏ module chỉ vì việc triển khai phức tạp.
+
+Không làm giao diện trước rồi bỏ trống nghiệp vụ phía sau.
+
+Không thay đổi nghiệp vụ đã xác nhận để đơn giản hóa code.
+
+Không tự đặt ra những quy tắc kinh doanh chưa được xác nhận.
+
+Nếu có thông tin thực sự cần thiết nhưng chưa được xác định, hãy cô lập thành cấu hình hoặc ghi nhận thành một vấn đề cần xác nhận; không tự biến giả định thành dữ liệu thật.
+
+Không hỏi lại những thông tin đã có trong prompt hoặc đã tồn tại trong repository.
+
+Nếu một phần đã hoạt động đúng, không phá vỡ nó khi chỉnh sửa phần khác.
+
+Mỗi lần hoàn thành một module, phải tự kiểm tra giao diện, quyền, nghiệp vụ và test case tương ứng trước khi tiếp tục.
+
+**Ưu tiên cao nhất:**
+
+1. Đúng nghiệp vụ BATT.
+2. Đúng actor và quyền sử dụng.
+3. Đúng dữ liệu và thời điểm cập nhật kho.
+4. Màn hình rõ ràng, dễ sử dụng.
+5. Phần tổng quan nhỏ gọn, danh sách chiếm diện tích chính.
+6. Không có hướng dẫn dài, nội dung thừa hoặc thuật ngữ kỹ thuật trong giao diện người dùng.
+7. Mọi nút và chức năng hoạt động thực sự.
+8. Kiểm thử toàn bộ chức năng bằng đúng actor.
+9. Responsive trên các kích thước màn hình.
+10. Chỉ bàn giao những gì đã được triển khai và kiểm tra thực tế.
+
+Kết quả cuối cùng phải là một **BATT PPMS hoàn chỉnh, chuyên nghiệp, nhất quán, dễ sử dụng cho doanh nghiệp, đúng nghiệp vụ và có thể tiếp tục phát triển**, không phải một bản demo đẹp mắt nhưng thiếu chức năng.
+
+Hãy bắt đầu bằng việc rà soát repository, lập ma trận actor–màn hình–quyền–use case, sau đó triển khai trực tiếp theo từng module và kiểm thử đến khi đạt các tiêu chí nghiệm thu nêu trên.

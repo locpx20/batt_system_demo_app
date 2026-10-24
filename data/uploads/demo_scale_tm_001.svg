@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+      <rect width="640" height="400" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+      <rect x="20" y="20" width="600" height="58" rx="6" fill="#0f172a"/>
+      <text x="36" y="55" font-family="sans-serif" font-size="18" font-weight="bold" fill="#ffffff">PHIẾU CÂN XE NHẬP NVL — TM-261020-01</text>
+      <text x="480" y="54" font-family="monospace" font-size="13" fill="#94a3b8">[MẪU DEMO]</text>
+      <text x="36" y="128" font-family="sans-serif" font-size="16" fill="#1e293b">Đơn vị cung cấp: Xưởng chế biến lâm sản Hòa Phát Bình Dương</text><text x="36" y="160" font-family="sans-serif" font-size="16" fill="#1e293b">Mặt hàng: NVL sản xuất viên gỗ nén</text><text x="36" y="192" font-family="sans-serif" font-size="16" fill="#1e293b">Khối lượng hàng cân: 32.500 kg | Thực nhận tại kho: 32.400 kg</text><text x="36" y="224" font-family="sans-serif" font-size="16" fill="#1e293b">Ngày cân: 20/10/2026 09:45 — Người giao: Lê Hoàng Nam</text>
+      <line x1="36" y1="330" x2="604" y2="330" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="36" y="362" font-family="sans-serif" font-size="13" fill="#64748b">CÔNG TY CỔ PHẦN NĂNG LƯỢNG TÁI TẠO BATT — Chứng từ minh họa môi trường thử nghiệm</text>
+    </svg>

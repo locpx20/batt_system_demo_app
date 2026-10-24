@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+      <rect width="640" height="400" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+      <rect x="20" y="20" width="600" height="58" rx="6" fill="#0f172a"/>
+      <text x="36" y="55" font-family="sans-serif" font-size="18" font-weight="bold" fill="#ffffff">ẢNH BẰNG CHỨNG QC TRƯỚC XUẤT — XH-261024-01</text>
+      <text x="480" y="54" font-family="monospace" font-size="13" fill="#94a3b8">[MẪU DEMO]</text>
+      <text x="36" y="128" font-family="sans-serif" font-size="16" fill="#1e293b">Đơn xuất: XH-261024-01 | Lô kiểm tra: TP/26/10/21-C1-01</text><text x="36" y="160" font-family="sans-serif" font-size="16" fill="#1e293b">Ghi nhận: Độ vụn tăng nhẹ ở lớp bao ngoài, đánh giá trước xuất: Grade B</text><text x="36" y="192" font-family="sans-serif" font-size="16" fill="#1e293b">Có khác biệt so với QC theo ca (Grade A) -> Chuyển Chủ DN quyết định</text>
+      <line x1="36" y1="330" x2="604" y2="330" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="36" y="362" font-family="sans-serif" font-size="13" fill="#64748b">CÔNG TY CỔ PHẦN NĂNG LƯỢNG TÁI TẠO BATT — Chứng từ minh họa môi trường thử nghiệm</text>
+    </svg>

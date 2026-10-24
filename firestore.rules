@@ -1,0 +1,243 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedEmail() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isBootstrapAdmin() {
+      return isVerifiedEmail() && request.auth.token.email == 'locxuanpham2000@gmail.com';
+    }
+
+    function isAdmin() {
+      return isBootstrapAdmin() || (
+        isVerifiedEmail() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.status == 'active'
+      );
+    }
+
+    function isActiveParentUser(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId)) &&
+        get(/databases/$(database)/documents/users/$(userId)).data.status == 'active';
+    }
+
+    function isValidRoleCode(role) {
+      return role is string && role.size() <= 32 && (
+        role == 'VIEWER' ||
+        role == 'OWNER' ||
+        role == 'MANAGER' ||
+        role == 'PURCHASING_STAFF' ||
+        role == 'WAREHOUSE_KEEPER' ||
+        role == 'STAFF' ||
+        role == 'QC_STAFF' ||
+        role == 'MAINTENANCE_STAFF' ||
+        role == 'ADMIN_SYSTEM'
+      );
+    }
+
+    function isValidUserPublicProfile(data) {
+      return data.keys().hasAll(['uid', 'displayName', 'roleCode', 'status', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'displayName', 'roleCode', 'status', 'createdAt', 'updatedAt']) &&
+        data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128 && data.uid.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 100 &&
+        isValidRoleCode(data.roleCode) &&
+        data.status is string && data.status.size() <= 16 && (data.status == 'active' || data.status == 'suspended') &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidUserPrivateInfo(data) {
+      return data.keys().hasAll(['ownerId', 'email', 'phone', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['ownerId', 'email', 'phone', 'createdAt', 'updatedAt']) &&
+        data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 && data.ownerId.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 160 &&
+        data.phone is string && data.phone.size() <= 24 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidAdminRecord(data) {
+      return data.keys().hasAll(['uid', 'status', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'status', 'createdAt', 'updatedAt']) &&
+        data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128 && data.uid.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.status is string && data.status.size() <= 16 && (data.status == 'active' || data.status == 'revoked') &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidSyncSnapshot(data) {
+      return data.keys().hasAll(['ownerId', 'lastRoute', 'status', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['ownerId', 'lastRoute', 'status', 'createdAt', 'updatedAt']) &&
+        data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 && data.ownerId.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.lastRoute is string && data.lastRoute.size() >= 1 && data.lastRoute.size() <= 120 &&
+        data.status is string && data.status.size() <= 16 && (data.status == 'active' || data.status == 'archived') &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isSignedIn() && existing().uid == request.auth.uid;
+
+      allow create: if isVerifiedEmail() &&
+        isValidId(userId) &&
+        isValidUserPublicProfile(incoming()) &&
+        incoming().uid == userId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time && (
+          (isOwner(userId) && incoming().roleCode == 'VIEWER' && incoming().status == 'active') ||
+          isAdmin()
+        );
+
+      allow update: if isValidUserPublicProfile(incoming()) &&
+        isVerifiedEmail() &&
+        isValidId(userId) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          (
+            isOwner(userId) &&
+            existing().status != 'suspended' &&
+            incoming().roleCode == existing().roleCode &&
+            incoming().status == existing().status &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'updatedAt'])
+          ) ||
+          (
+            isAdmin() &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'roleCode', 'status', 'updatedAt'])
+          )
+        );
+
+      allow delete: if false;
+
+      match /private/{docId} {
+        allow get: if isSignedIn() && isValidId(userId) && isValidId(docId) && (
+          (isOwner(userId) && isActiveParentUser(userId)) ||
+          isAdmin()
+        );
+        allow list: if false;
+
+        allow create: if isVerifiedEmail() &&
+          isValidId(userId) &&
+          isValidId(docId) &&
+          isValidUserPrivateInfo(incoming()) &&
+          incoming().ownerId == userId &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time && (
+            (isOwner(userId) && isActiveParentUser(userId)) ||
+            isAdmin()
+          );
+
+        allow update: if isValidUserPrivateInfo(incoming()) &&
+          isVerifiedEmail() &&
+          isValidId(userId) &&
+          isValidId(docId) &&
+          incoming().ownerId == existing().ownerId &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time && (
+            (
+              isOwner(userId) &&
+              isActiveParentUser(userId) &&
+              incoming().diff(existing()).affectedKeys().hasOnly(['email', 'phone', 'updatedAt'])
+            ) ||
+            (
+              isAdmin() &&
+              incoming().diff(existing()).affectedKeys().hasOnly(['email', 'phone', 'updatedAt'])
+            )
+          );
+
+        allow delete: if false;
+      }
+
+      match /syncSnapshots/{snapshotId} {
+        allow get: if isSignedIn() && isValidId(userId) && isValidId(snapshotId) && (
+          (isOwner(userId) && isActiveParentUser(userId)) ||
+          isAdmin()
+        );
+        allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
+
+        allow create: if isVerifiedEmail() &&
+          isValidId(userId) &&
+          isValidId(snapshotId) &&
+          isValidSyncSnapshot(incoming()) &&
+          incoming().ownerId == request.auth.uid &&
+          incoming().ownerId == userId &&
+          incoming().status == 'active' &&
+          incoming().createdAt == request.time &&
+          incoming().updatedAt == request.time &&
+          isActiveParentUser(userId);
+
+        allow update: if isValidSyncSnapshot(incoming()) &&
+          isVerifiedEmail() &&
+          isValidId(userId) &&
+          isValidId(snapshotId) &&
+          incoming().ownerId == existing().ownerId &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time && (
+            (
+              isOwner(userId) &&
+              existing().status != 'archived' &&
+              isActiveParentUser(userId) &&
+              incoming().diff(existing()).affectedKeys().hasOnly(['lastRoute', 'status', 'updatedAt'])
+            ) ||
+            (
+              isAdmin() &&
+              incoming().diff(existing()).affectedKeys().hasOnly(['lastRoute', 'status', 'updatedAt'])
+            )
+          );
+
+        allow delete: if false;
+      }
+    }
+
+    match /admins/{adminId} {
+      allow get: if isSignedIn() && isValidId(adminId) && (isOwner(adminId) || isAdmin());
+      allow list: if false;
+
+      allow create: if isVerifiedEmail() &&
+        isValidId(adminId) &&
+        isValidAdminRecord(incoming()) &&
+        incoming().uid == adminId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        isAdmin();
+
+      allow update: if isValidAdminRecord(incoming()) &&
+        isVerifiedEmail() &&
+        isValidId(adminId) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        isAdmin() &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+
+      allow delete: if false;
+    }
+  }
+}

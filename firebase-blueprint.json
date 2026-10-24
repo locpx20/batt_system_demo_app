@@ -1,0 +1,180 @@
+{
+  "entities": {
+    "UserPublicProfile": {
+      "title": "UserPublicProfile",
+      "description": "Non-PII workspace identity profile for authenticated BATT PPMS users.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID of the user."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Display name of the internal staff member."
+        },
+        "roleCode": {
+          "type": "string",
+          "enum": [
+            "VIEWER",
+            "OWNER",
+            "MANAGER",
+            "PURCHASING_STAFF",
+            "WAREHOUSE_KEEPER",
+            "STAFF",
+            "QC_STAFF",
+            "MAINTENANCE_STAFF",
+            "ADMIN_SYSTEM"
+          ],
+          "maxLength": 32,
+          "description": "Internal RBAC role assigned by administrator."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "suspended"],
+          "maxLength": 16,
+          "description": "Account lifecycle state; suspended is terminal unless admin overrides."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": ["uid", "displayName", "roleCode", "status", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated PII contact details stored in a private subcollection.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "UID of the user who owns this PII record."
+        },
+        "email": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "description": "Verified email address."
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 24,
+          "description": "Contact phone number."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": ["ownerId", "email", "phone", "createdAt", "updatedAt"]
+    },
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Trusted administrator membership registry.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "UID of the administrator."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "revoked"],
+          "maxLength": 16,
+          "description": "Lifecycle state of admin privilege."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": ["uid", "status", "createdAt", "updatedAt"]
+    },
+    "SyncSnapshot": {
+      "title": "SyncSnapshot",
+      "description": "User-scoped workspace preference and filter state snapshot.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "UID of the parent user."
+        },
+        "lastRoute": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "description": "Last visited authorized route."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "archived"],
+          "maxLength": 16,
+          "description": "Snapshot status; archived is a terminal state."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": ["ownerId", "lastRoute", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserPublicProfile" },
+      "description": "Public non-PII user profiles keyed by Firebase Auth UID."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Isolated PII records accessible strictly to the owner or admin."
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminRecord" },
+      "description": "Trusted administrator lookup collection."
+    },
+    "/users/{userId}/syncSnapshots/{snapshotId}": {
+      "schema": { "$ref": "#/entities/SyncSnapshot" },
+      "description": "User-scoped workspace state snapshots."
+    }
+  }
+}
